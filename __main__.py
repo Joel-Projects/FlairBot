@@ -411,7 +411,7 @@ def getChanges(results, previousResults):
     return needStarted, needStopped, statuses
 
 if __name__ == '__main__':
-    services = BotServices('FlairBot')
+    services = BotServices('FlairBot', forceLocal=True)
     sql = services.postgres()
     log = DaemonLogger(services.logger(), 'FlairBot Daemon', False)
     sql.execute('SELECT * FROM flairbots.subreddits')
