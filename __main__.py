@@ -2,7 +2,6 @@ import datetime, time, praw, psycopg2, requests, timeago, logging
 from multiprocessing import Process
 from BotUtils.CommonUtils import BotServices
 from discord import embeds
-from SpazUtils.utils import logStream
 from SpazUtils import Usernotes
 
 thingTypes = {'t1': 'comment', 't4': 'message', 't2': 'redditor', 't3': 'submission', 't5': 'subreddit', 't6': 'trophy'}
