@@ -115,7 +115,7 @@ class FlairRemoval:
                 if action.lock:
                     submission.mod.lock()
                 if action.comment:
-                    comment = self.__substituteToolboxTokens(action, submission, self.header, self.footer)
+                    comment = submission.reply(self.__substituteToolboxTokens(action, submission, self.header, self.footer))
                     comment.mod.distinguish(how='yes', sticky=True)
                     comment.mod.approve()
                     if action.lock_comment:
@@ -411,7 +411,7 @@ def getChanges(results, previousResults):
     return needStarted, needStopped, statuses
 
 if __name__ == '__main__':
-    services = BotServices('FlairBot', forceLocal=True)
+    services = BotServices('FlairBot')
     sql = services.postgres()
     log = DaemonLogger(services.logger(), 'FlairBot Daemon', False)
     sql.execute('SELECT * FROM flairbots.subreddits')
