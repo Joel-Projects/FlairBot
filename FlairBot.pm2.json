@@ -1,0 +1,12 @@
+{
+    "apps": [
+        {
+            "name": "FlairBot",
+            "script": "./__main__.py",
+            "interpreter": "env/bin/python3.7",
+            "interpreter_args": "-u"
+        }
+    ]
+}
+
+
