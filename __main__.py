@@ -139,9 +139,9 @@ class FlairRemoval:
     def __substituteToolboxTokens(self, text, submission, header, footer):
         if text:
             if header:
-                text = f'{header}\n\n{text}'
+                text = f'{header}\n---\n\n{text}'
             if footer:
-                text = f'{text}\n\n{footer}'
+                text = f'{text}\n---\n\n{footer}'
             return text.format(author=getattr(submission.author, 'name', '[deleted]'), subreddit=submission.subreddit, kind=thingTypes[submission.fullname[:2]], domain=submission.domain, title=submission.title, url=submission.shortlink)
         else:
             return None
