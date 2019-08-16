@@ -115,7 +115,7 @@ class FlairRemoval:
                 if action.lock:
                     submission.mod.lock()
                 if action.comment:
-                    comment = submission.reply(self.__substituteToolboxTokens(action, submission, self.header, self.footer))
+                    comment = submission.reply(self.__substituteToolboxTokens(action.comment, submission, self.header, self.footer))
                     comment.mod.distinguish(how='yes', sticky=True)
                     comment.mod.approve()
                     if action.lock_comment:
