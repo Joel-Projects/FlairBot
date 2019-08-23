@@ -1,0 +1,211 @@
+{% extends "base.html" %}
+{% block title %}JES Flair - Subreddits{% endblock %}
+{% block head %}
+        <link rel="stylesheet" href="style.css" />
+        <link rel="stylesheet" href="editormd.css"  />
+{{ super() }}
+{% endblock %}
+{% block content %}
+<style>
+    .tooltip-inner {
+        max-width: 250px;
+    }
+</style>
+<body>
+<script>
+    $(document).ready(function () {
+        $('[data-toggle="tooltip"]').tooltip();
+    });
+</script>
+<style>
+    .tooltip-inner {
+        max-width: 250px;
+    }
+</style>
+<script>
+function sortTable(n) {
+  var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+  table = document.getElementById("subreddits");
+  switching = true;
+  // Set the sorting direction to ascending:
+  dir = "asc";
+  /* Make a loop that will continue until
+  no switching has been done: */
+  while (switching) {
+    // Start by saying: no switching is done:
+    switching = false;
+    rows = table.rows;
+    /* Loop through all table rows (except the
+    first, which contains table headers): */
+    for (i = 1; i < (rows.length - 1); i++) {
+      // Start by saying there should be no switching:
+      shouldSwitch = false;
+      /* Get the two elements you want to compare,
+      one from current row and one from the next: */
+      x = rows[i].getElementsByTagName("TD")[n];
+      y = rows[i + 1].getElementsByTagName("TD")[n];
+      /* Check if the two rows should switch place,
+      based on the direction, asc or desc: */
+      if (dir == "asc") {
+        if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+          // If so, mark as a switch and break the loop:
+          shouldSwitch = true;
+          break;
+        }
+      } else if (dir == "desc") {
+        if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+          // If so, mark as a switch and break the loop:
+          shouldSwitch = true;
+          break;
+        }
+      }
+    }
+    if (shouldSwitch) {
+      /* If a switch has been marked, make the switch
+      and mark that a switch has been done: */
+      rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+      switching = true;
+      // Each time a switch is done, increase this count by 1:
+      switchcount ++;
+    } else {
+      /* If no switching has been done AND the direction is "asc",
+      set the direction to "desc" and run the while loop again. */
+      if (switchcount == 0 && dir == "asc") {
+        dir = "desc";
+        switching = true;
+      }
+    }
+  }
+}
+</script>
+
+<div class="jumbotron">
+    <h1 class="display-4">Edit {{ subreddit.subreddit }}</h1>
+</div>
+<div class="container">
+    <form action="{{ request.url.replace('http://', 'https://') }}" method="post">
+        <div class="form-group">
+
+            <label for="subName">Subreddit</label>
+            <div class="subName" id="subName">
+                <div class="input-group-prepend">
+                    <div class="input-group-text">/r/</div>
+                <input type="text" class="form-control" name="reddit-disabled" id="inlineFormInputGroup"
+                       value="{{ subreddit.subreddit }}" required disabled>
+                <input type="hidden" name="name" value="{{ subreddit.subreddit }}">
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="botAccount">Bot Account</label>
+            <input type="text" value="{{ subreddit.bot_account }}" name="group" class="form-control" id="botAccount">
+         </div>
+
+        <div class="form-group" id="groups">
+            <label for="webhookurl">Webhook URL</label>
+            {% if subreddit.webhook %}
+                <input type="text" value="{{ subreddit.webhook }}" name="group" class="form-control" id="webhookurl">
+            {% else %}
+                <input type="text" value="" name="group" class="form-control" id="webhookurl">
+            {% endif %}
+        </div>
+        <div class="form-group">
+            <label for="header">Header</label>
+        <div id="header">
+                <textarea style=""></textarea>
+            </div>
+                <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"
+                integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+        <script src="editormd.js"></script>
+        <script type="text/javascript">
+            var testEditor;
+
+            $(function() {
+                testEditor = editormd("header", {
+                    width  : "90%",
+                    height : 720,
+                    path   : '../lib/',
+                    editorTheme: "",
+                    toolbar: false,
+                    lineNumbers: false,
+                    placeholder: null,
+                    onchange : function() {
+                    }
+                });
+            });
+        </script>
+        </div>
+        <button class="btn btn-outline-primary" name="submit_button" type="submit" value="submit">Submit Changes
+        </button>
+    </form>
+
+        <input type="hidden" value="user" id="deleteu">
+        <div class="form-group">
+            <br/>
+            <button class="btn btn-outline-danger" id="delete" data-toggle="modal" data-target="#exampleModal">
+                Delete User
+            </button>
+        </div>
+        <script>
+            $(document).ready(function () {
+
+                $('#deletefr').click(function () {
+                    $('#exampleModal').modal('hide');
+
+                    $('#deletef').submit();
+                    console.log('it works!');
+                    $('#delete').prop('disabled', true);
+                    $('#delete').html('<div class="spinner-grow spinner-grow-sm text-primary" role="status"></div> Loading...');
+                    $.ajax({
+                        data: {
+                            user: $('#deleteu').val()
+                        },
+                        type: 'POST',
+                        url: '/api/deleteuser'
+                    })
+                        .done(function (data) {
+                            console.log(data);
+                            $('#delete').html('User deleted.');
+                            $('#delete').prop('class', 'btn btn-danger');
+
+
+                        });
+                    event.preventDefault();
+                    return false;
+
+                });
+            });
+        </script>
+
+        <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Confirmation</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        Are you <strong>sure</strong> you want to delete r/{{subreddit.subreddit}}?
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-danger" data-dismiss="modal" id="deletefr">Delete this
+                            user
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    <br/>
+    <br/>
+    <br/>
+    <br/>
+    <br/>
+    <br/>
+</div>
+</body>
+</html>
+{% endblock %}
