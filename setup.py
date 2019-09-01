@@ -6,10 +6,14 @@ setup(
     include_package_data=True,
     install_requires=[
         'flask',
+        'flask-login',
         'SpazUtils',
         'sentry-sdk[flask]==0.10.2',
-        'markdown',
-        'psycopg2-binary'
+        'psycopg2-binary',
+        'jinja2',
+        'sqlalchemy',
+        'flask-sqlalchemy',
+        'werkzeug', 'sshtunnel', 'datadog'
     ],
 )
 

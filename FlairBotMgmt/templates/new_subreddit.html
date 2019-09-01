@@ -66,7 +66,7 @@
                 })
                     .done(function (data) {
                         console.log(data);
-                        $('#delete').html('Deleted');
+                        $('#delete').html('Subreddit deleted.');
                         $('#delete').prop('class', 'btn btn-danger');
                     });
                 event.preventDefault();
@@ -110,7 +110,7 @@
     </script>
     <body>
     <div class="container">
-        <form action="/subreddits/{{ subreddit.subreddit }}" method="post">
+        <form action="/api/subreddit/edit" method="post">
             <div class="form-group">
                 <div class="col-lg-3">
                     <label class="control-label" for="subName">Subreddit</label>
@@ -119,7 +119,7 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text">/r/</span>
                             </div>
-                            <input class="form-control" id="subName" name="subreddit" type="text" value="{{ subreddit.subreddit }}" readonly="">
+                            <input class="form-control" id="subName" type="text" placeholder="{{ subreddit.subreddit }}" disabled="" style="background-image: url(&quot;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR4nGP6zwAAAgcBApocMXEAAAAASUVORK5CYII=&quot;);">
                         </div>
                     </div>
                     <div class="form-group">
@@ -177,14 +177,14 @@
                     </div>
                 </div>
                 {% if subreddit.header %}
-                    <div data-class="form-group" id="headerEntry" data-name="Header" data-nameLower="header" data-previewName="Header Preview" data-formName="headerText" data-text="{% if subreddit.header %}{{ subreddit.header }}{% endif %}" data-placeholder="Removal reason header..."></div>
+                    <div data-class="form-group" id="headerEntry" data-name="Header" data-nameLower="header" data-previewName="Header Preview" data-formName="headerText" data-text="{% if subreddit.header %}{{ subreddit.header.format(subreddit=subreddit.subreddit, author='Lil_SpazJoekp', kind='submission', url='https://redd.it/12345') }}{% endif %}" data-placeholder="Removal reason header..."></div>
                 {% else %}
-                    <div hidden data-class="form-group" id="headerEntry" data-name="Header" data-nameLower="header" data-previewName="Header Preview" data-formName="headerText" data-text="{% if subreddit.header %}{{ subreddit.header }}{% endif %}" data-placeholder="Removal reason header..."></div>
+                    <div hidden data-class="form-group" id="headerEntry" data-name="Header" data-nameLower="header" data-previewName="Header Preview" data-formName="headerText" data-text="{% if subreddit.header %}{{ subreddit.header.format(subreddit=subreddit.subreddit, author='Lil_SpazJoekp', kind='submission', url='https://redd.it/12345') }}{% endif %}" data-placeholder="Removal reason header..."></div>
                 {% endif %}
                 {% if subreddit.footer %}
-                    <div data-class="form-group" id="footerEntry" data-name="Footer" data-nameLower="footer" data-previewName="Footer Preview" data-formName="footerText" data-text="{% if subreddit.footer %}{{ subreddit.footer }}{% endif %}" data-placeholder="Removal reason footer..."></div>
+                    <div data-class="form-group" id="footerEntry" data-name="Footer" data-nameLower="footer" data-previewName="Footer Preview" data-formName="footerText" data-text="{% if subreddit.footer %}{{ subreddit.footer.format(subreddit=subreddit.subreddit, author='Lil_SpazJoekp', kind='submission', url='https://redd.it/12345') }}{% endif %}" data-placeholder="Removal reason footer..."></div>
                 {% else %}
-                    <div hidden data-class="form-group" id="footerEntry" data-name="Footer" data-nameLower="footer" data-previewName="Footer Preview" data-formName="footerText" data-text="{% if subreddit.footer %}{{ subreddit.footer }}{% endif %}" data-placeholder="Removal reason footer..."></div>
+                    <div hidden data-class="form-group" id="footerEntry" data-name="Footer" data-nameLower="footer" data-previewName="Footer Preview" data-formName="footerText" data-text="{% if subreddit.footer %}{{ subreddit.footer.format(subreddit=subreddit.subreddit, author='Lil_SpazJoekp', kind='submission', url='https://redd.it/12345') }}{% endif %}" data-placeholder="Removal reason footer..."></div>
                 {% endif %}
                 <div class="form-group">
                     <button class="btn btn-primary" name="submit_button" type="submit" value="submit">Submit Changes</button>

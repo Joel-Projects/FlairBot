@@ -1,0 +1,173 @@
+
+{% extends "base.html" %}
+{% block title %}FlairBot Manager - Subreddits{% endblock %}
+{% block breadCrumbs %}
+    <li class="breadcrumb-item"><a href={{ url_for('subreddits.root') }}>Subreddits</a></li>
+{% endblock %}
+{% block content %}
+    <style>
+        .tooltip-inner {
+            max-width: 250px;
+        }
+    </style>
+    <body>
+    <script>
+        $(document).ready(function () {
+            $('[data-toggle="tooltip"]').tooltip();
+
+        }});
+    </script>
+    <script>
+        function sortTable(n) {
+            var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+            table = document.getElementById("subreddits");
+            switching = true;
+            // Set the sorting direction to ascending:
+        // dir = "asc";
+        // /* Make a loop that will continue until
+        // no switching has been done: */
+        // while (switching) {
+        // Start by saying: no switching is done:
+        // switching = false;
+        // rows = table.rows;
+        // /* Loop through all table rows (except the
+        // first, which contains table headers): */
+        // for (i = 1; i < (rows.length - 1); i++) {
+        // Start by saying there should be no switching:
+        // shouldSwitch = false;
+        // /* Get the two elements you want to compare,
+        // one from current row and one from the next: */
+        // x = rows[i].getElementsByTagName("TD")[n];
+        // y = rows[i + 1].getElementsByTagName("TD")[n];
+        // /* Check if the two rows should switch place,
+        // based on the direction, asc or desc: */
+        // if (dir == "asc") {
+        // if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+        // If so, mark as a switch and break the loop:
+        // shouldSwitch = true;
+        // break;
+        // }
+        // } else if (dir == "desc") {
+        // if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+        // If so, mark as a switch and break the loop:
+        // shouldSwitch = true;
+        // break;
+        // }
+        // }
+        // }
+        // if (shouldSwitch) {
+        // /* If a switch has been marked, make the switch
+        // and mark that a switch has been done: */
+        // rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+        // switching = true;
+        // Each time a switch is done, increase this count by 1:
+        // switchcount ++;
+        // } else {
+        // /* If no switching has been done AND the direction is "asc",
+        // set the direction to "desc" and run the while loop again. */
+        // if (switchcount == 0 && dir == "asc") {
+        // dir = "desc";
+        // switching = true;
+        // }
+        // }
+        // }
+        // }
+    </script>
+    <div class="container">
+        <div class="table-responsive">
+            <table class="table table-hover" id="subreddits">
+                <thead class="thead-dark">
+                <tr>
+                    <th scope="col">#<sup>
+                        <span class="d-inline-block" style="opacity: 0.6" tabindex="0" data-toggle="tooltip"
+                              title="Subreddit ID">
+                            <i class="far fa-question-circle"></i></span></sup></th>
+                    <th scope="col">Subreddit<sup>
+                        <span class="d-inline-block" style="opacity: 0.6" tabindex="0" data-toggle="tooltip"
+                              title="Subreddits that has a flair bot added">
+                            <i class="far fa-question-circle"></i></span></sup></th>
+                    <th scope="col">Bot Name<sup>
+                        <span class="d-inline-block" style="opacity: 0.6" tabindex="0" data-toggle="tooltip"
+                              title="Reddit account for the bot">
+                            <i class="far fa-question-circle"></i></span></sup></th>
+                    <th scope="col">Removal Reasons<sup>
+                        <span class="d-inline-block" style="opacity: 0.6" tabindex="0" data-toggle="tooltip"
+                              title="Removal reason count">
+                            <i class="far fa-question-circle"></i></span></sup></th>
+                    <th scope="col">Webhook Type<sup>
+                        <span class="d-inline-block" style="opacity: 0.6" tabindex="0" data-toggle="tooltip"
+                              title="Removal reason count">
+                            <i class="far fa-question-circle"></i></span></sup></th>
+                    <th scope="col">Enabled<sup>
+                        <span class="d-inline-block" style="opacity: 0.6" tabindex="0" data-toggle="tooltip"
+                              title="Indicates if the bot is running or not">
+                            <i class="far fa-question-circle"></i></span></sup></th>
+                    <th scope="col">Edit<sup>
+                        <span class="d-inline-block" style="opacity: 0.6" tabindex="0" data-toggle="tooltip"
+                              title="Indicates if the bot is running or not">
+                            <i class="far fa-question-circle"></i></span></sup></th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for subreddit in subreddits %}
+                    <tr>
+                        <th scope="row">{{ subreddit.id }}</th>
+                        <td> {{ subreddit.subreddit }} </td>
+                        <td> {{ subreddit.bot_account }} </td>
+                        <td> {{ reasonCounts[subreddit.subreddit] }} </td>
+                        <td> {{ subreddit.webhook_type }} </td>
+                        <td>
+                            {% if subreddit.enabled %}
+                                <button class="btn btn-danger" id="{{ subreddit.subreddit }}_toggle" onclick="toggleSubreddit('{{ subreddit.subreddit }}', false)">Disable</button>
+                            {% else %}
+                                <button class="btn btn-success" id="{{ subreddit.subreddit }}_toggle" onclick="toggleSubreddit('{{ subreddit.subreddit }}', true)">Enable</button>
+                            {% endif %}
+                        </td>
+                        <td> <a href="/subreddits/{{subreddit.subreddit}}" class="btn btn-primary">Edit</a> </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <script>
+        function toggleSubreddit(subreddit, enabled) {
+            $.ajax({
+                data: {
+                    subreddit: subreddit
+                },
+                type: 'POST',
+                url: '/api/subreddit/enable'
+            })
+                .done(function (data) {
+                    var elem = document.getElementById(data.subreddit + "_toggle");
+                    if (data.enabled) {
+                        elem.textContent = "Disable";
+                        var toastStatus = "enabled";
+                        elem.setAttribute("class", "btn btn-danger")
+                    }
+                    if (!data.enabled) {
+                        elem.textContent = "Enable";
+                        var toastStatus = "disabled";
+                        elem.setAttribute("class", "btn btn-success")
+                    }
+                    if (data.error) {
+                        $.toast({
+                            title: 'Error Occurred',
+                            content: data.error,
+                            type: 'error'
+                        });
+                    }
+                    if (data.success) {
+                        $.toast({
+                            title: 'Success!',
+                            content: 'Successfully ' + toastStatus + ' FlairBot for r/' + data.subreddit,
+                            type: 'success',
+                            delay: 1500
+                        });
+                    }
+                });
+        }
+        </script>
+    </body>
+{% endblock %}

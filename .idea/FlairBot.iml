@@ -1,5 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module type="PYTHON_MODULE" version="4">
+  <component name="FacetManager">
+    <facet type="django" name="Django">
+      <configuration>
+        <option name="rootFolder" value="$MODULE_DIR$/FlairBotMgmt" />
+        <option name="settingsModule" value="" />
+        <option name="manageScript" value="" />
+        <option name="environment" value="&lt;map/&gt;" />
+        <option name="doNotUseTestRunner" value="false" />
+        <option name="trackFilePattern" value="" />
+      </configuration>
+    </facet>
+  </component>
   <component name="Flask">
     <option name="enabled" value="true" />
   </component>
@@ -15,10 +27,10 @@
     <orderEntry type="library" name="vue" level="application" />
     <orderEntry type="library" name="embed" level="application" />
     <orderEntry type="library" name="store" level="application" />
-    <orderEntry type="library" name="app" level="application" />
     <orderEntry type="library" name="snudown" level="application" />
   </component>
   <component name="TemplatesService">
+    <option name="TEMPLATE_CONFIGURATION" value="Django" />
     <option name="TEMPLATE_FOLDERS">
       <list>
         <option value="$MODULE_DIR$/FlairBotMgmt/templates" />

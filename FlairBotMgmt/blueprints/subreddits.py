@@ -1,0 +1,70 @@
+import praw
+from flask import Blueprint, render_template, request, session, redirect, url_for, jsonify
+from flask_login import login_required, current_user
+from .. import reddit
+from . import *
+
+subreddits = Blueprint('subreddits', __name__, url_prefix='/subreddits')
+
+@subreddits.route('/')
+@login_required
+def root():
+    subreddits = Subreddit.query.all()
+    removalReasons = RemovalReason.query.all()
+
+    reasonCounts = {}
+    for reason in removalReasons:
+        if not reason.subreddit in reasonCounts:
+            reasonCounts[reason.subreddit] = 0
+        reasonCounts[reason.subreddit] += 1
+    return render_template('subreddits.html', subreddits=subreddits, reasonCounts=reasonCounts)
+
+@subreddits.route('/<subreddit>', methods=['GET', 'POST'])
+@login_required
+@validateSubreddit
+def viewSubreddit(subreddit):
+    rsubreddit = reddit.subreddit(subreddit)
+    try:
+        rsubreddit._fetch()
+        subreddit = rsubreddit.display_name
+    except:
+        pass
+    session['subreddit'] = subreddit
+    notification = {'success': None, 'error': None}
+    subreddit = Subreddit.query.filter_by(subreddit=subreddit).first()
+    if subreddit:
+        if request.method == 'POST':
+            bot_account = request.form['botAccount']
+            webhook_type = request.form['webhookType']
+            webhook = request.form['webhook']
+            if not webhook:
+                webhook_type = None
+            headerToggle = request.form.get('headerToggle')
+            footerToggle = request.form.get('footerToggle')
+            header = request.form['headerText']
+            footer = request.form['footerText']
+            if not headerToggle:
+                header = None
+            if not footerToggle:
+                footer = None
+            notification = {'success': None, 'error': None}
+            try:
+                if subreddit:
+                    subreddit.bot_account = bot_account
+                    subreddit.webhook_type = webhook_type
+                    subreddit.webhook = webhook
+                    subreddit.header = header
+                    subreddit.footer = footer
+                    db.session.merge(subreddit)
+                    subredditEditType = 'Updated'
+                else:
+                    subreddit = Subreddit(bot_account=bot_account, webhook_type=webhook_type, webhook=webhook, header=header, footer=footer)
+                    db.session.add(subreddit)
+                    subredditEditType = 'Created'
+                db.session.commit()
+
+                notification['success'] = f'{subredditEditType} r/{subreddit.subreddit} successfully!'
+            except Exception as error:
+                notification['error'] = error
+        return render_template('edit_subreddit.html', subreddit=subreddit, notification=notification), 202
+    return render_template('errors/404.html'), 404
