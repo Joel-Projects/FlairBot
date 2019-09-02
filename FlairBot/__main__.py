@@ -80,7 +80,7 @@ class FlairRemoval:
                     submissionFlair = ''
                 query = self.__parseModAction(modAction, submissionFlair)
                 self.log.debug('Checking if in flair list')
-                self.sql.execute('SELECT * FROM flairbots.removal_reasons WHERE subreddit=%s AND flair_text=%s', (self.subreddit.display_name, submissionFlair))
+                self.sql.execute('SELECT * FROM flairbots.removal_reasons WHERE subreddit=%s AND flair_text=%s AND enabled', (self.subreddit.display_name, submissionFlair))
                 actionParam = self.sql.fetchone()
                 if actionParam:
                     self.log.info(f'Found flair: {submissionFlair} by {modAction._mod} at {self.__genDateString(modAction.created_utc, format="%m/%d/%Y %I:%M:%S %p")}')

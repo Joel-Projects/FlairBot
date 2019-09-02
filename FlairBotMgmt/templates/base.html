@@ -24,12 +24,21 @@
         * toastsJS
         -->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.15.0/popper.min.js" integrity="sha256-1XfFQxRfNvDJW3FdZ+xlo2SbodG2+rFArw6XsVzu3bc=" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
         <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
         <link href="https://stackpath.bootstrapcdn.com/bootswatch/4.3.1/darkly/bootstrap.min.css" rel="stylesheet" integrity="sha384-w+8Gqjk9Cuo6XH9HKHG5t5I1VR4YBNdPt/29vwgfZR485eoEJZ8rJRbm3TR32P6k" crossorigin="anonymous">
         <link rel="stylesheet" href="../static/css/addons.css">
         <script src="https://bot-bros-space.nyc3.cdn.digitaloceanspaces.com/webpack/toasts.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.1/js/jquery.tablesorter.min.js" integrity="sha256-uC1JMW5e1U5D28+mXFxzTz4SSMCywqhxQIodqLECnfU=" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.1/js/jquery.tablesorter.widgets.min.js" integrity="sha256-Xx4HRK+CKijuO3GX6Wx7XOV2IVmv904m0HKsjgzvZiY=" crossorigin="anonymous"></script>
+{#        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.1/css/theme.bootstrap.min.css" integrity="sha256-vgjicWNWkVklkfuqKnQth9ww987V7wCOzh6A0qkJ2Lw=" crossorigin="anonymous"/>#}
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.1/css/theme.bootstrap_4.min.css" integrity="sha256-vFn0MM8utz2N3JoNzRxHXUtfCJLz5Pb9ygBY2exIaqg=" crossorigin="anonymous"/>
+        <script>
+            $(document).ready(function () {
+                $('[data-toggle="tooltip"]').tooltip();
+            });
+        </script>
         <script>
             function popNotification(success, error) {
                 if (error) {
@@ -97,19 +106,19 @@
             <div class="navbar-collapse collapse w-100 order-1 order-md-0 dual-collapse2" id="navbarNav">
                 <div class="navbar-nav mr-auto">
                     {% if current_user.is_authenticated %}
-                    <a class="nav-item nav-link" href="/subreddits">Subreddits</a>
-                    <a class="nav-item nav-link" href="/reasons">Removal Reasons</a>
+                        <a class="nav-item nav-link" href="/subreddits">Subreddits</a>
+                        <a class="nav-item nav-link" href="/reasons">Removal Reasons</a>
                     {% endif %}
                     {% if current_user.admin %}
-                    <a class="nav-item nav-link" href="/admin">Admin</a>
-                    <a class="nav-item nav-link" href="/logout">Logout</a>
+                        <a class="nav-item nav-link" href="/admin">Admin</a>
+                        <a class="nav-item nav-link" href="/logout">Logout</a>
                     {% endif %}
                 </div>
                 <div class="navbar-nav ml-auto">
                     <div class="nav-item nav-link">
                     </div>
                     {% if current_user %}
-                    <a class="nav-item nav-link active" href="/user">{{ current_user.username }}</a>
+                        <a class="nav-item nav-link active" href="/user">{{ current_user.username }}</a>
                     {% else %}
                         <a class="nav-item nav-link active" href="/login">Login</a>
                     {% endif %}

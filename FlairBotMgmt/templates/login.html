@@ -1,41 +1,81 @@
 {% extends "base.html" %}
 {% block nav %}
+
 {% endblock %}
 {% block page_header %}
+
 {% endblock %}
-
 {% block content %}
-<div class="column is-4 is-offset-4">
-    <h1 class="h1 mb-3 font-weight-normal">FlairBot Manager</h1>
-    <h2 class="h3 mb-3 font-weight-normal">Please sign in</h2>
-    <div class="box">
-        {% with messages = get_flashed_messages() %}
-        {% if messages %}
-            <div class="notification is-danger">
-                {{ messages[0] }}
-            </div>
-        {% endif %}
-        {% endwith %}
-        <form method="POST" action="/login">
-            <div class="field">
-                <div class="control">
-                    <input class="input is-large" type="text" name="username" placeholder="Username" autofocus="">
-                </div>
-            </div>
+    <style>
+        html, body {
+            height: 100%;
+        }
+        body {
+            display: -ms-flexbox;
+            display: flex;
+            -ms-flex-align: center;
+            align-items: center;
+            padding-top: 40px;
+            padding-bottom: 40px;
+        }
 
-            <div class="field">
-                <div class="control">
-                    <input class="input is-large" type="password" name="password" placeholder="Password">
-                </div>
-            </div>
-            <div class="field">
-                <label class="checkbox">
-                    <input type="checkbox">
-                    Remember me
+        .form-signin {
+            width: 100%;
+            max-width: 400px;
+            padding: 15px;
+            margin: auto;
+        }
+        .btn {
+            max-width: 270px;
+            margin: auto;
+        }
+        .alert {
+            max-width: 250px;
+            margin: auto;
+        }
+        .form-signin .checkbox {
+            font-weight: 400;
+            vertical-align: 2px;
+        }
+        .form-signin .form-control {
+            position: center;
+            width: 100%;
+            margin: auto;
+            box-sizing: border-box;
+            max-width: 250px;
+            height: auto;
+            font-size: 16px;
+        }
+    </style>
+    <body class="text-center">
+    <form class="form-signin" id="loginform" action="/login" method="post">
+        <h1 class="h1 mb-3 font-weight-normal">FlairBot Manager</h1>
+        <h2 class="h3 mb-3 font-weight-normal">Please sign in</h2>
+        <div class="box">
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    <div class="alert alert-danger mb-3">
+                        {{ messages[0] }}
+                    </div>
+                {% endif %}
+            {% endwith %}
+        </div>
+        <div class="form-group">
+            <label for="inputUsername" class="sr-only">Username</label>
+            <input type="text" id="inputUsername" name="username" class="form-control mb-1" placeholder="Username" required="" autofocus="" {% if username %} value="{{ username }}"{% endif %}>
+        </div>
+        <div class="form-group">
+            <label for="inputPassword" class="sr-only">Password</label>
+            <input type="password" id="inputPassword" name="password" class="form-control mb-2" placeholder="Password" required="" {% if password %} value="{{ password }}"{% endif %}>
+        </div>
+        <div class="form-group">
+            <div class="checkbox mb-3">
+                <label>
+                    <input type="checkbox" name="remember"> Remember me
                 </label>
             </div>
-            <button class="button is-block is-info is-large is-fullwidth">Login</button>
-        </form>
-    </div>
-</div>
+        </div>
+        <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+    </form>
+    </body>
 {% endblock %}

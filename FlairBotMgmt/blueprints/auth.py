@@ -16,6 +16,7 @@ def login():
 
         if not user or not check_password_hash(user.password, password):
             flash('Please check your login details and try again.')
+            return render_template('login.html', username=username, password=password)
         else:
             login_user(user, remember=remember, fresh=False)
 

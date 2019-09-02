@@ -1,145 +1,36 @@
-
 {% extends "base.html" %}
-{% block title %}FlairBot Manager - Subreddits{% endblock %}
+{% block title %}FlairBot Manager - Removal Reasons{% endblock %}
 {% block breadCrumbs %}
-    <li class="breadcrumb-item"><a href={{ url_for('subreddits.root') }}>Subreddits</a></li>
+    <li class="breadcrumb-item"><a href={{ url_for('removal_reasons.root') }}>Removal Reasons</a></li>
 {% endblock %}
 {% block content %}
     <style>
         .tooltip-inner {
             max-width: 250px;
         }
+        .input-group > .form-control:not(:last-child), .input-group > .custom-select:not(:last-child) {
+            border-left: 0 !important;
+            border-radius: .25rem !important;
+            border-top-left-radius: 0 !important;
+            border-bottom-left-radius: 0 !important;
+        }
     </style>
     <body>
     <script>
-        $(document).ready(function () {
-            $('[data-toggle="tooltip"]').tooltip();
+        function clearInvalidState(textBox) {
+            textBox.className = "form-control"
+        }
 
-        }});
-    </script>
-    <script>
-        function sortTable(n) {
-            var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
-            table = document.getElementById("subreddits");
-            switching = true;
-            // Set the sorting direction to ascending:
-        // dir = "asc";
-        // /* Make a loop that will continue until
-        // no switching has been done: */
-        // while (switching) {
-        // Start by saying: no switching is done:
-        // switching = false;
-        // rows = table.rows;
-        // /* Loop through all table rows (except the
-        // first, which contains table headers): */
-        // for (i = 1; i < (rows.length - 1); i++) {
-        // Start by saying there should be no switching:
-        // shouldSwitch = false;
-        // /* Get the two elements you want to compare,
-        // one from current row and one from the next: */
-        // x = rows[i].getElementsByTagName("TD")[n];
-        // y = rows[i + 1].getElementsByTagName("TD")[n];
-        // /* Check if the two rows should switch place,
-        // based on the direction, asc or desc: */
-        // if (dir == "asc") {
-        // if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
-        // If so, mark as a switch and break the loop:
-        // shouldSwitch = true;
-        // break;
-        // }
-        // } else if (dir == "desc") {
-        // if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
-        // If so, mark as a switch and break the loop:
-        // shouldSwitch = true;
-        // break;
-        // }
-        // }
-        // }
-        // if (shouldSwitch) {
-        // /* If a switch has been marked, make the switch
-        // and mark that a switch has been done: */
-        // rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
-        // switching = true;
-        // Each time a switch is done, increase this count by 1:
-        // switchcount ++;
-        // } else {
-        // /* If no switching has been done AND the direction is "asc",
-        // set the direction to "desc" and run the while loop again. */
-        // if (switchcount == 0 && dir == "asc") {
-        // dir = "desc";
-        // switching = true;
-        // }
-        // }
-        // }
-        // }
-    </script>
-    <div class="container">
-        <div class="table-responsive">
-            <table class="table table-hover" id="subreddits">
-                <thead class="thead-dark">
-                <tr>
-                    <th scope="col">#<sup>
-                        <span class="d-inline-block" style="opacity: 0.6" tabindex="0" data-toggle="tooltip"
-                              title="Subreddit ID">
-                            <i class="far fa-question-circle"></i></span></sup></th>
-                    <th scope="col">Subreddit<sup>
-                        <span class="d-inline-block" style="opacity: 0.6" tabindex="0" data-toggle="tooltip"
-                              title="Subreddits that has a flair bot added">
-                            <i class="far fa-question-circle"></i></span></sup></th>
-                    <th scope="col">Bot Name<sup>
-                        <span class="d-inline-block" style="opacity: 0.6" tabindex="0" data-toggle="tooltip"
-                              title="Reddit account for the bot">
-                            <i class="far fa-question-circle"></i></span></sup></th>
-                    <th scope="col">Removal Reasons<sup>
-                        <span class="d-inline-block" style="opacity: 0.6" tabindex="0" data-toggle="tooltip"
-                              title="Removal reason count">
-                            <i class="far fa-question-circle"></i></span></sup></th>
-                    <th scope="col">Webhook Type<sup>
-                        <span class="d-inline-block" style="opacity: 0.6" tabindex="0" data-toggle="tooltip"
-                              title="Removal reason count">
-                            <i class="far fa-question-circle"></i></span></sup></th>
-                    <th scope="col">Enabled<sup>
-                        <span class="d-inline-block" style="opacity: 0.6" tabindex="0" data-toggle="tooltip"
-                              title="Indicates if the bot is running or not">
-                            <i class="far fa-question-circle"></i></span></sup></th>
-                    <th scope="col">Edit<sup>
-                        <span class="d-inline-block" style="opacity: 0.6" tabindex="0" data-toggle="tooltip"
-                              title="Indicates if the bot is running or not">
-                            <i class="far fa-question-circle"></i></span></sup></th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for subreddit in subreddits %}
-                    <tr>
-                        <th scope="row">{{ subreddit.id }}</th>
-                        <td> {{ subreddit.subreddit }} </td>
-                        <td> {{ subreddit.bot_account }} </td>
-                        <td> {{ reasonCounts[subreddit.subreddit] }} </td>
-                        <td> {{ subreddit.webhook_type }} </td>
-                        <td>
-                            {% if subreddit.enabled %}
-                                <button class="btn btn-danger" id="{{ subreddit.subreddit }}_toggle" onclick="toggleSubreddit('{{ subreddit.subreddit }}', false)">Disable</button>
-                            {% else %}
-                                <button class="btn btn-success" id="{{ subreddit.subreddit }}_toggle" onclick="toggleSubreddit('{{ subreddit.subreddit }}', true)">Enable</button>
-                            {% endif %}
-                        </td>
-                        <td> <a href="/subreddits/{{subreddit.subreddit}}" class="btn btn-primary">Edit</a> </td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
-    <script>
         function toggleSubreddit(subreddit, enabled) {
             $.ajax({
                 data: {
-                    subreddit: subreddit
+                    subreddit: subreddit,
+                    enabled: enabled
                 },
                 type: 'POST',
-                url: '/api/subreddit/enable'
+                url: '/api/subreddit/toggle'
             })
-                .done(function (data) {
+                .done(function notify(data) {
                     var elem = document.getElementById(data.subreddit + "_toggle");
                     if (data.enabled) {
                         elem.textContent = "Disable";
@@ -151,23 +42,319 @@
                         var toastStatus = "disabled";
                         elem.setAttribute("class", "btn btn-success")
                     }
-                    if (data.error) {
-                        $.toast({
-                            title: 'Error Occurred',
-                            content: data.error,
-                            type: 'error'
-                        });
-                    }
-                    if (data.success) {
-                        $.toast({
-                            title: 'Success!',
-                            content: 'Successfully ' + toastStatus + ' FlairBot for r/' + data.subreddit,
-                            type: 'success',
-                            delay: 1500
-                        });
-                    }
+                    popNotification('Successfully ' + toastStatus + ' FlairBot for r/' + data.subreddit, data.error);
                 });
         }
-        </script>
+
+        $(function () {
+            let form = document.getElementById('addSubredditForm');
+            let headerToggle = document.getElementById('headerToggle');
+            let footerToggle = document.getElementById('footerToggle');
+            let headerEntry = document.getElementById('headerEntry');
+            let headerinput = document.getElementById('headerinput');
+            let footerEntry = document.getElementById('footerEntry');
+            let footerinput = document.getElementById('footerinput');
+            let webhookType = document.getElementById('webhookType');
+            let customWebhookLabel = document.getElementById('customWebhookLabel');
+            let customWebhookType = document.getElementById('customWebhookType');
+            let webhookurlLabel = document.getElementById('webhookurlLabel');
+            let webhookurl = document.getElementById('webhookurl');
+            headerEntry.hidden = !headerToggle.checked;
+            headerinput.required = headerToggle.checked;
+            footerEntry.hidden = !footerToggle.checked;
+            footerinput.required = footerToggle.checked;
+            webhookurlLabel.hidden = webhookType.value == "None";
+            webhookurl.hidden = webhookType.value == "None";
+            webhookurl.required = webhookType.value != "None";
+
+            $("#subreddits").tablesorter({
+                theme: "bootstrap",
+                cancelSelection: false,
+                sortReset: true
+            });
+
+            $('[data-toggle="tooltip"]').tooltip();
+
+            $('#subredditAdd').click(function () {
+                let subreddit = document.getElementById('subreddit');
+                let subredditFeedback = document.getElementById('subredditFeedback');
+                let botAccount = document.getElementById('bot_account');
+                let bot_accountFeedback = document.getElementById('bot_accountFeedback');
+                let headerToggle = document.getElementById('headerToggle');
+                let footerToggle = document.getElementById('footerToggle');
+                let headerinput = document.getElementById('headerinput');
+                let footerinput = document.getElementById('footerinput');
+                let webhookType = document.getElementById('webhookType');
+                let webhookurl = document.getElementById('webhookurl');
+                let enableOnAdd = document.getElementById('enableOnAdd');
+
+                if (form.checkValidity()) {
+                    $('#subredditAdd').prop('disabled', true);
+                    $('#subredditAdd').html('<span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>Adding...');
+                    $.ajax({
+                        data: {
+                            subreddit: subreddit.value,
+                            bot_account: botAccount.value,
+                            webhook_type: webhookType.value,
+                            webhook: webhookurl.value,
+                            headerToggle: headerToggle.checked,
+                            footerToggle: footerToggle.checked,
+                            header: headerinput.value,
+                            footer: footerinput.value,
+                            enable: enableOnAdd.checked
+                        },
+                        type: 'POST',
+                        url: '/api/subreddit/add'
+                    })
+                        .done(function (data) {
+                            console.log(data);
+                            if (!data.validSubreddit) {
+                                subreddit.className = "form-control is-invalid";
+                                subredditFeedback.innerText = "That subreddit doesn't exist!"
+                                $('#subredditAdd').prop('disabled', false);
+                                $('#subredditAdd').prop('class', 'btn btn-primary');
+                                $('#subredditAdd').html('Add');
+                            } else if (data.subredditExists) {
+                                subreddit.className = "form-control is-invalid";
+                                subredditFeedback.innerText = "That subreddit already exists!"
+                                $('#subredditAdd').prop('disabled', false);
+                                $('#subredditAdd').prop('class', 'btn btn-primary');
+                                $('#subredditAdd').html('Add');
+                            }
+                            if (!data.validRedditor) {
+                                botAccount.className = "form-control is-invalid";
+                                bot_accountFeedback.innerText = "That redditor doesn't exist!"
+                                $('#subredditAdd').prop('disabled', false);
+                                $('#subredditAdd').prop('class', 'btn btn-primary');
+                                $('#subredditAdd').html('Add');
+                            }
+                            if (data.validSubreddit && !data.subredditExists && data.validRedditor) {
+                                let subredditsTable = document.getElementById('subreddits');
+                                let row = subredditsTable.insertRow();
+                                let subredditName = row.insertCell();
+                                subredditName.innerHTML = data.subreddit.subreddit;
+                                let bot_account = row.insertCell();
+                                bot_account.innerHTML = data.subreddit.bot_account;
+                                let removalReasonCount = row.insertCell();
+                                let webhook_type = row.insertCell();
+                                if (data.subreddit.webhook_type) {
+                                    webhookType = data.subreddit.webhook_type;
+                                } else {
+                                    webhookType = 'None';
+                                }
+                                webhook_type.innerHTML = webhookType;
+                                let enabled = row.insertCell();
+                                if (data.subreddit.enabled) {
+                                    buttonType = 'danger';
+                                    enableButtonStatus = 'Disable';
+                                    toggleState = false
+                                } else {
+                                    buttonType = 'success';
+                                    enableButtonStatus = 'Enable';
+                                    toggleState = true
+                                }
+                                enabled.innerHTML = "<button class=\"btn btn-" + buttonType + "\" id=" + data.subreddit.subreddit + "_toggle onclick=\"toggleSubreddit('" + data.subreddit.subreddit + "', " + toggleState + ")\">" + enableButtonStatus + "</button>";
+                                let edit = row.insertCell();
+                                edit.innerHTML = "<a href=\"/subreddits/" + data.subreddit.subreddit + "\" class=\"btn btn-primary\">Edit</a>";
+                                $('#subredditAdd').html('Added');
+                                $('#newSubredditModal').modal('hide');
+                                $('#subredditAdd').prop('disabled', false);
+                                $('#subredditAdd').prop('class', 'btn btn-primary');
+                                $('#subredditAdd').html('Add');
+                            }
+                            popNotification(data.success, data.error);
+                        });
+                }
+            });
+
+            $("#webhookType").change(function () {
+                if (webhookType.value == "custom") {
+                    customWebhookLabel.hidden = false;
+                    customWebhookType.hidden = false;
+                    customWebhookType.required = true;
+                    customWebhookType.value = ''
+                } else {
+                    customWebhookLabel.hidden = true;
+                    customWebhookType.hidden = true;
+                    customWebhookType.required = false;
+                    customWebhookType.value = webhookType.value
+                }
+                webhookurlLabel.hidden = (webhookType.value == "None");
+                webhookurl.hidden = (webhookType.value == "None");
+            });
+
+            $("#customWebhookType").change(function () {
+                webhookType.value = 'custom'
+                customWebhookType.hidden = false;
+                customWebhookType.required = true;
+                customWebhookLabel.hidden = false;
+            });
+
+            $("#headerToggle").click(function () {
+                headerEntry.hidden = !headerToggle.checked;
+                headerinput.required = headerToggle.checked;
+                headerinput.style.minHeight = '54px'
+            });
+
+            $("#footerToggle").click(function () {
+                footerEntry.hidden = !footerToggle.checked;
+                footerinput.required = footerToggle.checked;
+                footerinput.style.minHeight = '54px'
+            });
+
+        });
+    </script>
+    <script>
+        $(document).ready(function () {
+        });
+    </script>
+    <div class="container">
+        <div class="table-responsive">
+            <table class="table table-hover table-bordered table-striped" id="removal_reasons">
+                <thead class="thead-dark">
+                <tr>
+                    <th scope="col">Flair Text<sup>
+                        <span class="d-inline-block" style="opacity: 0.6" tabindex="0" data-toggle="tooltip"
+                              title="The text the flair must have to trigger removal">
+                            <i class="far fa-question-circle"></i></span></sup></th>
+                    <th scope="col">Description<sup>
+                        <span class="d-inline-block" style="opacity: 0.6" tabindex="0" data-toggle="tooltip"
+                              title="Flair Description">
+                            <i class="far fa-question-circle"></i></span></sup></th>
+                    <th scope="col">Subreddit<sup>
+                        <span class="d-inline-block" style="opacity: 0.6" tabindex="0" data-toggle="tooltip"
+                              title="Subreddit the removal reason is for">
+                            <i class="far fa-question-circle"></i></span></sup></th>
+                    <th scope="col">Lock<sup>
+                        <span class="d-inline-block" style="opacity: 0.6" tabindex="0" data-placement="top" data-toggle="tooltip"
+                              title="Will the bot lock the comments of removed post">
+                            <i class="far fa-question-circle"></i></span></sup></th>
+                    <th scope="col">Lock Comments<sup>
+                        <span class="d-inline-block" style="opacity: 0.6" tabindex="0" data-placement="top" data-toggle="tooltip"
+                              title="Will the bot lock the removal comments of removed post">
+                            <i class="far fa-question-circle"></i></span></sup></th>
+                    <th scope="col">Ban<sup>
+                        <span class="d-inline-block" style="opacity: 0.6" tabindex="0" data-placement="top" data-toggle="tooltip"
+                              title="Will the bot ban the author of removed post">
+                            <i class="far fa-question-circle"></i></span></sup></th>
+                    <th scope="col">Usernote<sup>
+                        <span class="d-inline-block" style="opacity: 0.6" tabindex="0" data-placement="top" data-toggle="tooltip"
+                              title="Will the bot add a usernote to the author of removed post">
+                            <i class="far fa-question-circle"></i></span></sup></th>
+                    <th scope="col">Enabled<sup>
+                        <span class="d-inline-block" style="opacity: 0.6" tabindex="0" data-toggle="tooltip"
+                              title="Indicates if the removal reason is enabled or not">
+                            <i class="far fa-question-circle"></i></span></sup></th>
+                    <th scope="col">Edit<sup>
+                        <span class="d-inline-block" style="opacity: 0.6" tabindex="0" data-toggle="tooltip"
+                              title="Edit removal reason settings">
+                            <i class="far fa-question-circle"></i></span></sup></th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for subreddit in subreddits %}
+                    <tr>
+                        <th scope="row">{{ subreddit.subreddit }}</th>
+                        <td>{{ subreddit.bot_account }}</td>
+                        <td>{{ reasonCounts[subreddit.subreddit] }}</td>
+                        <td>{{ subreddit.webhook_type }}</td>
+                        <td>
+                            {% if subreddit.enabled %}
+                                <button class="btn btn-danger" id="{{ subreddit.subreddit }}_toggle" onclick="toggleSubreddit('{{ subreddit.subreddit }}', false)">Disable</button>
+                            {% else %}
+                                <button class="btn btn-success" id="{{ subreddit.subreddit }}_toggle" onclick="toggleSubreddit('{{ subreddit.subreddit }}', true)">Enable</button>
+                            {% endif %}
+                        </td>
+                        <td><a href="/subreddits/{{ subreddit.subreddit }}" class="btn btn-primary">Edit</a></td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            <button class="btn btn-primary" id="addSubreddit" data-toggle="modal" data-target="#newSubredditModal">Add Subreddit</button>
+            <div class="modal fade" id="newSubredditModal" tabindex="-1" role="dialog" aria-labelledby="newSubredditModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="newSubredditModalLabel">Add Subreddit</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="addSubredditForm">
+                                <div class="form-group">
+                                    <div class="col-lg-8">
+                                        <label class="control-label" for="subreddit">Subreddit</label>
+                                        <div class="subName" id="subName">
+                                            <div class="input-group mb-2">
+                                                <div class="input-group-prepend" id="subredditPrepend">
+                                                    <span class="input-group-text">/r/</span>
+                                                </div>
+                                                <input class="form-control" id="subreddit" name="subreddit" onkeypress="clearInvalidState(this)" placeholder="Subreddit" required>
+                                                <div class="invalid-feedback" id="subredditFeedback">That subreddit doesn't exist!</div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="bot_account">Bot Account</label>
+                                            <div class="botAccount" id="botAccount">
+                                                <div class="input-group mb-3">
+                                                    <div class="input-group-prepend" id="bot_accountPrepend">
+                                                        <span class="input-group-text">/u/</span>
+                                                    </div>
+                                                    <input class="form-control" id="bot_account" name="botAccount" onkeypress="clearInvalidState(this)" placeholder="Account the bot will run as" required>
+                                                    <div class="invalid-feedback" id="bot_accountFeedback">That redditor doesn't exist!</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="webhookType">Webhook Type</label>
+                                            <select class="custom-select" id="webhookType" name="webhookType">
+                                                <option selected>None</option>
+                                                <option value="discord">Discord</option>
+                                                <option value="slack">Slack</option>
+                                                <option value="custom">Custom</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label hidden id="customWebhookLabel" for="customWebhookType">Custom Webhook Type</label>
+                                            <input hidden type="text" value="" name="webhookType" class="form-control" id="customWebhookType">
+                                        </div>
+                                        <div class="form-group">
+                                            <label hidden id='webhookurlLabel' for="webhookurl">Webhook URL</label>
+                                            <input hidden type="text" value="" name="group" class="form-control" id="webhookurl">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="custom-control custom-switch">
+                                            <input type="checkbox" class="custom-control-input" id="headerToggle" name="headerToggle">
+                                            <label class="custom-control-label" for="headerToggle">Header</label>
+                                            <small id="headerHelp" class="form-text text-muted">Enable header for removal comments</small>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="custom-control custom-switch">
+                                            <input type="checkbox" class="custom-control-input" id="footerToggle" name="footerToggle">
+                                            <label class="custom-control-label" for="footerToggle">Footer</label>
+                                            <small id="footerHelp" class="form-text text-muted">Enable footer for removal comments</small>
+                                        </div>
+                                    </div>
+                                    <div hidden data-class="form-group" id="headerEntry" data-name="Header" data-nameLower="header" data-previewName="Header Preview" data-formName="headerText" data-text data-placeholder="Removal reason header..."></div>
+                                    <div hidden data-class="form-group" id="footerEntry" data-name="Footer" data-nameLower="footer" data-previewName="Footer Preview" data-formName="footerText" data-text data-placeholder="Removal reason footer..."></div>
+                                    <div class="modal-footer">
+                                        <div class="custom-control custom-switch">
+                                            <input type="checkbox" class="custom-control-input" id="enableOnAdd" name="headerToggle">
+                                            <label class="custom-control-label" for="enableOnAdd">Enable</label>
+                                            <small id="enableOnAddHelp" class="form-text text-muted">Enable FlairBot on add</small>
+                                        </div>
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                        <button type="submit" name="submit" class="btn btn-primary" id="subredditAdd">Add</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="../static/dist/bundle.js" type="text/javascript"></script>
     </body>
 {% endblock %}

@@ -9,8 +9,8 @@ subreddits = Blueprint('subreddits', __name__, url_prefix='/subreddits')
 @subreddits.route('/')
 @login_required
 def root():
-    subreddits = Subreddit.query.all()
-    removalReasons = RemovalReason.query.all()
+    subreddits = Subreddit.query.order_by(Subreddit.id).all()
+    removalReasons = RemovalReason.query.order_by(RemovalReason.id).all()
 
     reasonCounts = {}
     for reason in removalReasons:

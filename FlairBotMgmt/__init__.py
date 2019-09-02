@@ -48,9 +48,9 @@ app.config['SECRET_KEY'] = b"\xf05s\\\x07\xddAM\xb6\xf4x]qOf\xb3\x03\xa1\xdf:\x1
 
 app.config['SQLALCHEMY_DATABASE_URI'] = f'postgresql://flairbot:52939L%t6eV3910t@{settings["sshHost"] if remote else "localhost"}/postgres'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['DEBUG_TB_TEMPLATE_EDITOR_ENABLED'] = True
-app.config['DEBUG_TB_PROFILER_ENABLED'] = True
-app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
+# app.config['DEBUG_TB_TEMPLATE_EDITOR_ENABLED'] = False
+# app.config['DEBUG_TB_PROFILER_ENABLED'] = False
+# app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 
 app.debug = remote
 login_manager = LoginManager()
@@ -58,7 +58,7 @@ login_manager.login_view = 'auth.login'
 
 db.init_app(app)
 
-DebugToolbarExtension().init_app(app)
+# DebugToolbarExtension().init_app(app)
 login_manager.init_app(app)
 
 @login_manager.user_loader
