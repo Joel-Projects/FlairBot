@@ -25,12 +25,17 @@ def toggleSubreddit():
 @api.route('/subreddit/delete', methods=['POST'])
 @login_required
 @requiresAdmin
-@validateSubredditForm
 def deleteSubreddit(subreddit=None):
+    print(f'Deleting Subreddit')
     notification = {'success': None, 'error': None}
-    subname = subreddit
+    subname = request.form['subreddit']
+    deleteRemovalReasons = request.form.get('cascade') == 'true'
     try:
-        subreddit = Subreddit.query.filter_by(subreddit=subreddit).first()
+        if deleteRemovalReasons:
+            removalReasons = RemovalReason.query.filter_by(subreddit=subname)
+            removalReasons.delete()
+            db.session.commit()
+        subreddit = Subreddit.query.filter_by(subreddit=subname).first()
         if subreddit:
             db.session.delete(subreddit)
             db.session.commit()
@@ -82,6 +87,8 @@ def editSubreddit(subreddit=None):
     return jsonify({'notification': notification, 'subreddit': subreddit.subreddit}), 202
 
 @api.route('/subreddit/add', methods=['POST'])
+@login_required
+@requiresAdmin
 def addSubreddit():
     subreddit = request.form['subreddit']
     bot_account = request.form['bot_account']
@@ -126,13 +133,59 @@ def addSubreddit():
             subredditEditType = 'Added'
             db.session.commit()
             success = f'{subredditEditType} r/{subreddit.subreddit} successfully!'
-    except Exception as er:
-        error = er
+    except Exception as err:
+        error = str(err)
     if not isinstance(subreddit, str):
         subredditData = {'subreddit': subreddit.subreddit, 'bot_account': subreddit.bot_account, 'webhook_type': subreddit.webhook_type, 'webhook': subreddit.webhook, 'header': subreddit.header, 'footer': subreddit.footer, 'enabled': subreddit.enabled}
     else:
         subredditData = {}
     return jsonify({'success': success, 'error': error, 'subredditExists': subredditExists, 'validSubreddit': validSubreddit, 'validRedditor': validRedditor, 'subreddit':  subredditData}), 202
+
+
+@api.route('/reason/create', methods=['POST'])
+@login_required
+@requiresAdmin
+def addReason():
+    subreddit = request.form['subreddit']
+    flair_text = request.form['flair_text']
+    description = request.form['description']
+    commentToggle = request.form['commentToggle'] == 'true'
+    if commentToggle:
+        commentInput = request.form['commentInput']
+    else:
+        commentInput = None
+    lockToggle = request.form['lockToggle'] == 'true'
+    commentLockToggle = request.form['commentLockToggle'] == 'true'
+    banToggle = request.form['banToggle'] == 'true'
+    if banToggle:
+        ban_duration = request.form['ban_duration']
+        ban_reason = request.form['ban_reason']
+        ban_message = request.form['ban_message']
+        ban_note = request.form['ban_note']
+    else:
+        ban_duration = None
+        ban_reason = None
+        ban_message = None
+        ban_note = None
+    usernoteToggle = request.form['usernoteToggle'] == 'true'
+    if usernoteToggle:
+        usernote_note = request.form['usernote_note']
+        usernote_warning_type = request.form['usernote_warning_type']
+    else:
+        usernote_note = None
+        usernote_warning_type = None
+    enableOnAdd = request.form['enableOnAdd'] == 'true'
+    success = None
+    error = None
+    try:
+        reason = RemovalReason(subreddit=subreddit, flair_text=flair_text, description=description, comment=commentInput, lock=lockToggle, lock_comment=commentLockToggle, ban=banToggle, ban_duration=ban_duration, ban_reason=ban_reason, ban_message=ban_message, ban_note=ban_note, usernote=usernoteToggle, usernote_note=usernote_note, usernote_warning_type=usernote_warning_type, enabled=enableOnAdd)
+        db.session.add(reason)
+        db.session.commit()
+        success = f'Created removal reason for r/{reason.subreddit} successfully!'
+    except Exception as err:
+        error = str(err)
+    reasonData = {'subreddit': reason.subreddit, 'flair_text': reason.flair_text, 'description': reason.description, 'comment': reason.comment, 'lock': reason.lock, 'lock_comment': reason.lock_comment, 'ban': reason.ban, 'ban_duration': reason.ban_duration, 'ban_reason': reason.ban_reason, 'ban_message': reason.ban_message, 'ban_note': reason.ban_note, 'usernote': reason.usernote, 'usernote_note': reason.usernote_note, 'usernote_warning_type': reason.usernote_warning_type, 'enabled': reason.enabled}
+    return jsonify({'success': success, 'error': error, 'reason': reasonData}), 202
 
 @api.route('/users/create', methods=['POST'])
 @login_required

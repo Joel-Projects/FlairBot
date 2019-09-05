@@ -32,6 +32,7 @@ def viewSubreddit(subreddit):
     session['subreddit'] = subreddit
     notification = {'success': None, 'error': None}
     subreddit = Subreddit.query.filter_by(subreddit=subreddit).first()
+    removalReasons = RemovalReason.query.filter_by(subreddit=subreddit.subreddit).all()
     if subreddit:
         if request.method == 'POST':
             bot_account = request.form['botAccount']
@@ -66,5 +67,5 @@ def viewSubreddit(subreddit):
                 notification['success'] = f'{subredditEditType} r/{subreddit.subreddit} successfully!'
             except Exception as error:
                 notification['error'] = error
-        return render_template('edit_subreddit.html', subreddit=subreddit, notification=notification), 202
+        return render_template('edit_subreddit.html', subreddit=subreddit, notification=notification, removalReasons=removalReasons), 202
     return render_template('errors/404.html'), 404

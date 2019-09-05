@@ -1,13 +1,6 @@
 import React from "react";
 
-const Snudown = require('snudown-js');
-
-const capitalize = (s) => {
-    if (typeof s !== 'string') return ''
-    return s.charAt(0).toUpperCase() + s.slice(1)
-};
-
-export default class App extends React.Component {
+export default class Comment extends React.Component {
     constructor(props) {
         super(props);
         this.state = {

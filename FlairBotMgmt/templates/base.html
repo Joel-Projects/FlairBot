@@ -34,30 +34,7 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.1/js/jquery.tablesorter.widgets.min.js" integrity="sha256-Xx4HRK+CKijuO3GX6Wx7XOV2IVmv904m0HKsjgzvZiY=" crossorigin="anonymous"></script>
 {#        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.1/css/theme.bootstrap.min.css" integrity="sha256-vgjicWNWkVklkfuqKnQth9ww987V7wCOzh6A0qkJ2Lw=" crossorigin="anonymous"/>#}
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.1/css/theme.bootstrap_4.min.css" integrity="sha256-vFn0MM8utz2N3JoNzRxHXUtfCJLz5Pb9ygBY2exIaqg=" crossorigin="anonymous"/>
-        <script>
-            $(document).ready(function () {
-                $('[data-toggle="tooltip"]').tooltip();
-            });
-        </script>
-        <script>
-            function popNotification(success, error) {
-                if (error) {
-                    $.toast({
-                        title: 'Error Occurred',
-                        content: error,
-                        type: 'error'
-                    });
-                }
-                if (success) {
-                    $.toast({
-                        title: 'Success!',
-                        content: success,
-                        type: 'success',
-                        delay: 1500
-                    });
-                }
-            }
-        </script>
+        <script src="{{ url_for('static', filename='js/base.js') }}"></script>
         <style>
             .toast-body {
                 background-color: grey;

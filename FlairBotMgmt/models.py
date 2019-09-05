@@ -47,9 +47,9 @@ class User(UserMixin, db.Model):
 class RemovalReason(db.Model):
     __tablename__ = 'removal_reasons'
     __table_args__ = {'schema': 'flairbots'}
-    id = db.Column(db.Integer, primary_key=True, server_default=db.text("nextval('flairbots.removal_reasons_id_seq'::regclass)"))
-    subreddit = db.Column(db.ForeignKey('flairbots.subreddits.subreddit', ondelete='RESTRICT', onupdate='CASCADE'), nullable=False)
-    flair_text = db.Column(db.Text, nullable=False)
+    id = db.Column(db.Integer, server_default=db.text("nextval('flairbots.removal_reasons_id_seq'::regclass)"))
+    subreddit = db.Column(db.ForeignKey('flairbots.subreddits.subreddit', ondelete='RESTRICT', onupdate='CASCADE'), primary_key=True, nullable=False)
+    flair_text = db.Column(db.Text, primary_key=True, nullable=False)
     description = db.Column(db.Text, comment='This is the description sent to the log channel')
     comment = db.Column(db.Text)
     lock = db.Column(db.Boolean)
@@ -62,4 +62,5 @@ class RemovalReason(db.Model):
     usernote = db.Column(db.Boolean)
     usernote_note = db.Column(db.Text)
     usernote_warning_type = db.Column(db.Text, comment='Type of note. Must exactly match toolbox note types. Null for no type.')
+    enabled = db.Column(db.Boolean, server_default=db.text("true"))
     # subreddit1 = db.relationship('subreddits')

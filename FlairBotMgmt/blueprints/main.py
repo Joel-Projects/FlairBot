@@ -35,19 +35,5 @@ def root():
 def dash():
     return render_template('dash.html')
 
-@main.route('/reasons')
-@login_required
-def removalReasons():
-    with conn.cursor() as sql:
-        sql.execute('SELECT * FROM flairbots.subreddits')
-        subreddits = sql.fetchall()
-        sql.execute('SELECT * FROM flairbots.removal_reasons')
-        removalReasons = sql.fetchall()
-    reasonCounts = {}
-    for reason in removalReasons:
-        if not reason.subreddit in reasonCounts:
-            reasonCounts[reason.subreddit] = 0
-        reasonCounts[reason.subreddit] += 1
-    return render_template('subreddits.html', subreddits=subreddits, reasonCounts=reasonCounts)
 
 
