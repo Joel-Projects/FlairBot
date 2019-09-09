@@ -19,6 +19,7 @@ def viewRemovalReason(reason_id):
     session['reason_id'] = reason_id
     notification = {'success': None, 'error': None}
     removalReason = RemovalReason.query.filter_by(id=reason_id).first()
+    reasonSubreddit = Subreddit.query.filter_by(subreddit=removalReason.subreddit).first()
     subreddits = Subreddit.query.all()
     if removalReason:
         if request.method == 'POST':
@@ -26,13 +27,13 @@ def viewRemovalReason(reason_id):
             subreddit = request.form['subreddit']
             flair_text = request.form['flair_text']
             description = request.form['description']
-            commentToggle = request.form.get('commentToggle') == 'true'
+            commentToggle = request.form.get('commentToggle') == 'on'
             if commentToggle:
-                commentInput = request.form['commentInput']
+                commentInput = request.form['commentText']
             else:
                 commentInput = None
             lockToggle = request.form.get('lockToggle') == 'true'
-            commentLockToggle = request.form.get('commentLockToggle') == 'true'
+            commentLockToggle = request.form.get('commentLockToggle') == 'on'
             banToggle = request.form.get('banToggle') == 'true'
             if banToggle:
                 ban_duration = request.form['ban_duration']
@@ -44,7 +45,7 @@ def viewRemovalReason(reason_id):
                 ban_reason = None
                 ban_message = None
                 ban_note = None
-            usernoteToggle = request.form.get('usernoteToggle') == 'true'
+            usernoteToggle = request.form.get('usernoteToggle') == 'on'
             if usernoteToggle:
                 usernote_note = request.form['usernote_note']
                 usernote_warning_type = request.form['usernote_warning_type']
@@ -80,7 +81,7 @@ def viewRemovalReason(reason_id):
                 notification['success'] = f'{reasonEditType} "{reason.flair_text}" for r/{reason.subreddit} successfully!'
             except Exception as error:
                 notification['error'] = error
-        return render_template('edit_removal_reason.html', removalReason=removalReason, notification=notification, subreddits=subreddits), 202
+        return render_template('edit_removal_reason.html', removalReason=removalReason, notification=notification, subreddits=subreddits, subreddit=reasonSubreddit), 202
     return render_template('errors/404.html'), 404
 
 @removalReasons.route('/new', methods=['GET', 'POST'])

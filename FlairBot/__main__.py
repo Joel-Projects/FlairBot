@@ -134,7 +134,7 @@ class FlairRemoval:
 
     def __setUsernote(self, action, submission):
         subredditUsernotes = Usernotes(reddit=self.reddit, subreddit=submission.subreddit)
-        subredditUsernotes.addUsernote(user=submission.author, note=action.usernote_note, thing=submission, warningType=action.usernote_warning_type)
+        subredditUsernotes.addUsernote(user=submission.author, note=action.usernote_note, thing=submission, subreddit=submission.subreddit, warningType=action.usernote_warning_type)
 
     def __substituteToolboxTokens(self, text, submission, header, footer):
         if text:

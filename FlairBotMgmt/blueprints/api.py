@@ -183,13 +183,13 @@ def editReason():
     subreddit = request.form['subreddit']
     flair_text = request.form['flair_text']
     description = request.form['description']
-    commentToggle = request.form['commentToggle'] == 'true'
+    commentToggle = request.form['commentToggle'] == 'on'
     if commentToggle:
         commentInput = request.form['commentInput']
     else:
         commentInput = None
     lockToggle = request.form['lockToggle'] == 'true'
-    commentLockToggle = request.form['commentLockToggle'] == 'true'
+    commentLockToggle = request.form['commentLockToggle'] == 'on'
     banToggle = request.form['banToggle'] == 'true'
     if banToggle:
         ban_duration = request.form['ban_duration']
@@ -201,7 +201,7 @@ def editReason():
         ban_reason = None
         ban_message = None
         ban_note = None
-    usernoteToggle = request.form['usernoteToggle'] == 'true'
+    usernoteToggle = request.form['usernoteToggle'] == 'on'
     if usernoteToggle:
         usernote_note = request.form['usernote_note']
         usernote_warning_type = request.form['usernote_warning_type']
