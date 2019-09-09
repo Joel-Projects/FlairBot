@@ -11,8 +11,7 @@
         .tooltip-inner {
             max-width: 250px;
         }
-    </style>
-    <style>
+
         .btn-primary {
             display: inline-block;
             float: left;
@@ -32,18 +31,234 @@
         {#vertical-align: top;#} margin-left: 10px;
         {#min-height: 54px;#}{#border: 1px solid black;#}
         }
+
+        .col-lg-3 {
+            position: relative;
+            width: 100%;
+            padding-right: 0px;
+            padding-left: 0px;
+        }
     </style>
-    <script>
+    <script type="text/javascript">
+        function editReason() {
+
+        }
+
+        window.addEventListener('keydown', function (e) {
+            if (e.keyIdentifier == 'U+000A' || e.keyIdentifier == 'Enter' || e.keyCode == 13) {
+                if (e.target.nodeName == 'INPUT' && e.target.type == 'textarea') {
+                    e.preventDefault();
+                    return false;
+                }
+            }
+        }, true);
+
+        function toggleReason(id, enabled) {
+            $.ajax({
+                data: {
+                    id: id,
+                    enabled: enabled
+                },
+                type: 'POST',
+                url: '/api/reason/toggle'
+            })
+                .done(function notify(data) {
+                    var elem = document.getElementById(`${data.id}_toggle`);
+                    var icon = document.getElementById(`${data.id}_icon`);
+                    if (data.enabled) {
+                        elem.textContent = "Disable";
+                        elem.style.color = "#E74C3C";
+                        icon.setAttribute("class", "fas fa-check");
+                        icon.style.color = "#00bc8c";
+                        var toastStatus = "enabled";
+                    }
+                    if (!data.enabled) {
+                        elem.textContent = "Enable";
+                        elem.style.color = "#00bc8c";
+                        icon.setAttribute("class", "fas fa-times");
+                        icon.style.color = "#E74C3C";
+                        var toastStatus = "disabled";
+                    }
+                    elem.setAttribute("class", "dropdown-item");
+                    popNotification(`Successfully ${toastStatus} "${data.flair_text}"!`, data.error);
+                });
+        }
+
+        function clearInvalidState(textBox) {
+            textBox.className = "form-control"
+        }
+
+        function deleteFlair(reason_id, row_id) {
+            $('#confirmationModal').modal('hide');
+            $.ajax({
+                data: {
+                    reason_id: reason_id
+                },
+                type: 'POST',
+                url: '/api/reason/delete'
+            })
+                .done(function (data) {
+                    console.log(data);
+                    if (data.success) {
+                        popNotification(`Successfully deleted flair "${data.flair_text}" for r/${data.subreddit}`, data.error);
+                        document.getElementById("reasons").deleteRow(row_id);
+                    }
+                });
+            event.preventDefault();
+            return false;
+        }
+
+        function deleteSubreddit() {
+            $('#confirmationModal').modal('hide');
+            $('#delete').prop('disabled', true);
+            $('#delete').html('<div class="spinner-grow spinner-grow-sm text-primary" role="status"></div> Loading...');
+            $.ajax({
+                data: {
+                    subreddit: "{{ subreddit.subreddit }}",
+                    cascade: true
+                },
+                type: 'POST',
+                url: '/api/subreddit/delete'
+            })
+                .done(function (data) {
+                    console.log(data);
+                    $('#delete').html('Deleted');
+                    $('#delete').prop('class', 'btn btn-danger');
+                });
+            event.preventDefault();
+            return false;
+        }
+
+
+        function showDeleteModal(subreddit) {
+            document.getElementById('delete-modal-body').innerHTML = `Are you <strong>sure</strong> you want to delete /r/${subreddit} and all of its associated removal reasons?`;
+            document.getElementById('delete-modal-footer').innerHTML = `<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button><button type="button" class="btn btn-danger" onclick="deleteSubreddit()" data-dismiss="modal" id="deleteConfirm">Delete this subreddit</button>`;
+            $('#confirmationModal').modal('show')
+        }
+
+        function showDeleteModalFlair(flair_text, subreddit, flair_id, row_id) {
+            document.getElementById('delete-modal-body').innerHTML = `Are you <strong>sure</strong> you want to delete the "${flair_text}" flair for /r/${subreddit}?`;
+            document.getElementById('delete-modal-footer').innerHTML = `<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button><button type="button" class="btn btn-danger" onclick="deleteFlair(${flair_id}, ${row_id})" data-dismiss="modal" id="deleteConfirm">Delete this flair</button>`;
+            $('#confirmationModal').modal('show')
+        }
+
+        function resetForm(preserveSubreddit) {
+            let subreddit = document.getElementById('subreddit');
+            let flair_text = document.getElementById('flair_text');
+            let description = document.getElementById('description');
+            let lockToggle = document.getElementById('lockToggle');
+            let commentLockToggle = document.getElementById('commentLockToggle');
+            let banToggle = document.getElementById('banToggle');
+            let ban_duration = document.getElementById('ban_duration');
+            let ban_reason = document.getElementById('ban_reason');
+            let ban_message = document.getElementById('ban_message');
+            let ban_note = document.getElementById('ban_note');
+            let usernoteToggle = document.getElementById('usernoteToggle');
+            let usernote_note = document.getElementById('usernote_note');
+            let usernote_warning_type = document.getElementById('usernote_warning_type');
+            let commentToggle = document.getElementById('commentToggle');
+            let commentInput = document.getElementById('commentinput');
+            let commentOutput = document.getElementById('commentoutput');
+            let enableOnAdd = document.getElementById('enableOnAdd');
+            let banGroup = document.getElementById('banGroup');
+            let usernoteGroup = document.getElementById('usernoteGroup');
+            let commentEntry = document.getElementById('headerEntry');
+            if (!preserveSubreddit) {
+                subreddit.value = ""
+            }
+            flair_text.value = null;
+            description.value = null;
+            lockToggle.checked = false;
+            commentLockToggle.checked = false;
+            banToggle.checked = false;
+            ban_duration.value = 0;
+            ban_reason.value = null;
+            ban_message.value = null;
+            ban_note.value = null;
+            usernoteToggle.checked = false;
+            usernote_note.value = null;
+            usernote_warning_type.value = null;
+            commentToggle.checked = false;
+            commentInput.value = null;
+            commentOutput.value = null;
+            enableOnAdd.checked = true;
+            commentEntry.hidden = !commentToggle.checked;
+            banGroup.hidden = !banToggle.checked;
+            usernoteGroup.hidden = !usernoteToggle.checked;
+        }
+
+        function addRow(data) {
+            let reasonsTable = document.getElementById('reasons');
+            let row = reasonsTable.insertRow();
+            let flair_text = row.insertCell();
+            flair_text.innerHTML = data.reason.flair_text;
+            let description = row.insertCell();
+            description.innerHTML = data.reason.description;
+            let comment = row.insertCell();
+            if (data.reason.comment) {
+                comment.innerHTML = `<i class="fas fa-check" id="${data.reason.id}_comment_icon" style="font-size: 28px;color: #00bc8c"></i>`
+            } else {
+                comment.innerHTML = `<i class="fas fa-times" id="${data.reason.id}_comment_icon" style="font-size: 28px; color: #E74C3C"></i>`
+            }
+            let lock = row.insertCell();
+            if (data.reason.lock) {
+                lock.innerHTML = `<i class="fas fa-check" id="${data.reason.id}_lock_icon" style="font-size: 28px;color: #00bc8c"></i>`
+            } else {
+                lock.innerHTML = `<i class="fas fa-times" id="${data.reason.id}_lock_icon" style="font-size: 28px; color: #E74C3C"></i>`
+            }
+            let lock_comment = row.insertCell();
+            if (data.reason.lock_comment) {
+                lock_comment.innerHTML = `<i class="fas fa-check" id="${data.reason.id}_lock_comment_icon" style="font-size: 28px;color: #00bc8c"></i>`
+            } else {
+                lock_comment.innerHTML = `<i class="fas fa-times" id="${data.reason.id}_lock_comment_icon" style="font-size: 28px; color: #E74C3C"></i>`
+            }
+            let ban = row.insertCell();
+            if (data.reason.ban) {
+                ban.innerHTML = `<i class="fas fa-check" id="${data.reason.id}_ban_icon" style="font-size: 28px;color: #00bc8c"></i>`
+            } else {
+                ban.innerHTML = `<i class="fas fa-times" id="${data.reason.id}_ban_icon" style="font-size: 28px; color: #E74C3C"></i>`
+            }
+            let usernote = row.insertCell();
+            if (data.reason.usernote) {
+                usernote.innerHTML = `<i class="fas fa-check" id="${data.reason.id}_usernote_icon" style="font-size: 28px;color: #00bc8c"></i>`
+            } else {
+                usernote.innerHTML = `<i class="fas fa-times" id="${data.reason.id}_usernote_icon" style="font-size: 28px; color: #E74C3C"></i>`
+            }
+            let enabled = row.insertCell();
+            let options = row.insertCell();
+            if (data.reason.enabled) {
+                enabled.innerHTML = `<i class="fas fa-check" id="${data.reason.id}_enabled_icon" style="font-size: 28px;color: #00bc8c"></i>`;
+                let enableToggle = `<a class="dropdown-item" id="${data.reason.id}_toggle" style="color: #E74C3C" onclick="toggleReason('${data.reason.id}', false)">Disable</a>`;
+                options.innerHTML = `<div class="dropdown"><a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fas fa-ellipsis-h"></i></a><div class="dropdown-menu"><a class="dropdown-item" href="/reasons/${data.reason.id}">Edit</a>${enableToggle}<div class="dropdown-divider"></div> <a class="dropdown-item" onclick="showDeleteModalFlair('${data.reason.flair_text}', '${data.reason.subreddit}', ${data.reason.id}, ${row.rowIndex})" style="color: red">Delete</a></div></div>`
+            } else {
+                enabled.innerHTML = `<i class="fas fa-times" id="${data.reason.id}_enabled_icon" style="font-size: 28px; color: #E74C3C"> </i>`;
+                let enableToggle = `<a class="dropdown-item" id="${data.reason.id}_toggle" style="color: #00bc8c" onclick="toggleReason('${data.reason.id}', false)">Enable</a>`;
+                options.innerHTML = `<div class="dropdown"><a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fas fa-ellipsis-h"></i></a><div class="dropdown-menu"><a class="dropdown-item" href="/reasons/${data.reason.id}">Edit</a>${enableToggle}<div class="dropdown-divider"></div> <a class="dropdown-item" onclick="showDeleteModalFlair('${data.reason.flair_text}', '${data.reason.subreddit}', ${data.reason.id}, ${row.rowIndex})" style="color: red">Delete</a></div></div>`
+            }
+        }
+
         $(function () {
-            var headerToggle = document.getElementById('headerToggle');
-            var footerToggle = document.getElementById('footerToggle');
-            var headerEntry = document.getElementById('headerEntry')
-            var footerEntry = document.getElementById('footerEntry')
-            var webhookType = document.getElementById('webhookType');
-            var customWebhookLabel = document.getElementById('customWebhookLabel');
-            var customWebhookType = document.getElementById('customWebhookType');
-            var webhookurlLabel = document.getElementById('webhookurlLabel');
-            var webhookurl = document.getElementById('webhookurl');
+            let headerToggle = document.getElementById('headerToggle');
+            let footerToggle = document.getElementById('footerToggle');
+            let headerEntry = document.getElementById('headerEntry');
+            let footerEntry = document.getElementById('footerEntry');
+            let webhookType = document.getElementById('webhookType');
+            let customWebhookLabel = document.getElementById('customWebhookLabel');
+            let customWebhookType = document.getElementById('customWebhookType');
+            let webhookurlLabel = document.getElementById('webhookurlLabel');
+            let webhookurl = document.getElementById('webhookurl');
+            let form = document.getElementById('createRemovalReasonForm');
+            let commentToggle = document.getElementById('commentToggle');
+            let banToggle = document.getElementById('banToggle');
+            let usernoteToggle = document.getElementById('usernoteToggle');
+            let banGroup = document.getElementById('banGroup');
+            let usernoteGroup = document.getElementById('usernoteGroup');
+            let commentEntry = document.getElementById('commentEntry');
+            let commentInput = document.getElementById('commentinput');
+            commentEntry.hidden = !commentToggle.checked;
+            commentInput.required = commentToggle.checked;
+            banGroup.hidden = !banToggle.checked;
+            usernoteGroup.hidden = !usernoteToggle.checked;
             headerEntry.hidden = !headerToggle.checked;
             headerEntry.required = headerToggle.checked;
             footerEntry.hidden = !footerToggle.checked;
@@ -51,25 +266,7 @@
             webhookurlLabel.hidden = webhookType.value == "None";
             webhookurl.hidden = webhookType.value == "None";
             webhookurl.required = webhookType.value != "None";
-            $('#deleteConfirm').click(function () {
-                $('#confirmationModal').modal('hide');
-                $('#delete').prop('disabled', true);
-                $('#delete').html('<div class="spinner-grow spinner-grow-sm text-primary" role="status"></div> Loading...');
-                $.ajax({
-                    data: {
-                        subreddit: "{{ subreddit.subreddit }}"
-                    },
-                    type: 'POST',
-                    url: '/api/subreddit/delete'
-                })
-                    .done(function (data) {
-                        console.log(data);
-                        $('#delete').html('Deleted');
-                        $('#delete').prop('class', 'btn btn-danger');
-                    });
-                event.preventDefault();
-                return false;
-            });
+
             $("#webhookType").change(function () {
                 if (webhookType.value == "custom") {
                     customWebhookLabel.hidden = false;
@@ -99,6 +296,159 @@
                 footerEntry.hidden = !footerToggle.checked;
                 footerEntry.required = footerToggle.checked;
             });
+
+            $("#reasons").tablesorter({
+                theme: "bootstrap",
+                cancelSelection: false,
+                sortReset: true
+            });
+
+            $('[data-toggle="tooltip"]').tooltip();
+
+            $('#reasonCreate').click(function () {
+                let subreddit = document.getElementById('subreddit');
+                let flair_text = document.getElementById('flair_text');
+                let description = document.getElementById('description');
+                let lockToggle = document.getElementById('lockToggle');
+                let commentLockToggle = document.getElementById('commentLockToggle');
+                let banToggle = document.getElementById('banToggle');
+                let ban_duration = document.getElementById('ban_duration');
+                let ban_reason = document.getElementById('ban_reason');
+                let ban_message = document.getElementById('ban_message');
+                let ban_note = document.getElementById('ban_note');
+                let usernoteToggle = document.getElementById('usernoteToggle');
+                let usernote_note = document.getElementById('usernote_note');
+                let usernote_warning_type = document.getElementById('usernote_warning_type');
+                let commentToggle = document.getElementById('commentToggle');
+                let commentInput = document.getElementById('commentinput');
+                let enableOnAdd = document.getElementById('enableOnAdd');
+
+                if (form.checkValidity()) {
+                    $('#reasonCreate').prop('disabled', true);
+                    $('#reasonCreate').html('<span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>Adding...');
+                    $.ajax({
+                        data: {
+                            subreddit: subreddit.value,
+                            flair_text: flair_text.value,
+                            description: description.value,
+                            commentToggle: commentToggle.checked,
+                            commentInput: commentInput.value,
+                            lockToggle: lockToggle.checked,
+                            commentLockToggle: commentLockToggle.checked,
+                            banToggle: banToggle.checked,
+                            ban_duration: ban_duration.value,
+                            ban_reason: ban_reason.value,
+                            ban_message: ban_message.value,
+                            ban_note: ban_note.value,
+                            usernoteToggle: usernoteToggle.checked,
+                            usernote_note: usernote_note.value,
+                            usernote_warning_type: usernote_warning_type.value,
+                            enableOnAdd: enableOnAdd.checked
+                        },
+                        type: 'POST',
+                        url: '/api/reason/create'
+                    })
+                        .done(function (data) {
+                            console.log(data);
+                            if (data.reasonExists) {
+                                flair_text.className = "form-control is-invalid";
+                                flair_textFeedback.innerText = "This flair already exists for this subreddit!"
+                                $('#reasonCreate').prop('disabled', false);
+                                $('#reasonCreate').prop('class', 'btn btn-primary');
+                                $('#reasonCreate').html('Create');
+                            } else {
+                                addRow(data);
+                                $('#reasonCreate').html('Created');
+                                $('#newReasonModal').modal('hide');
+                                $('#reasonCreate').prop('disabled', false);
+                                $('#reasonCreate').prop('class', 'btn btn-primary');
+                                $('#reasonCreate').html('Create');
+                                resetForm(false);
+                                event.preventDefault();
+                                return false;
+                                popNotification(data.success, data.error);
+                            }
+                        });
+                }
+            });
+
+            $('#reasonCreateNew').click(function () {
+                let subreddit = document.getElementById('subreddit');
+                let flair_text = document.getElementById('flair_text');
+                let description = document.getElementById('description');
+                let lockToggle = document.getElementById('lockToggle');
+                let commentLockToggle = document.getElementById('commentLockToggle');
+                let banToggle = document.getElementById('banToggle');
+                let ban_duration = document.getElementById('ban_duration');
+                let ban_reason = document.getElementById('ban_reason');
+                let ban_message = document.getElementById('ban_message');
+                let ban_note = document.getElementById('ban_note');
+                let usernoteToggle = document.getElementById('usernoteToggle');
+                let usernote_note = document.getElementById('usernote_note');
+                let usernote_warning_type = document.getElementById('usernote_warning_type');
+                let commentToggle = document.getElementById('commentToggle');
+                let commentInput = document.getElementById('commentinput');
+                let enableOnAdd = document.getElementById('enableOnAdd');
+
+                if (form.checkValidity()) {
+                    $('#reasonCreateNew').prop('disabled', true);
+                    $('#reasonCreateNew').html('<span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>Adding...');
+                    $.ajax({
+                        data: {
+                            subreddit: subreddit.value,
+                            flair_text: flair_text.value,
+                            description: description.value,
+                            commentToggle: commentToggle.checked,
+                            commentInput: commentInput.value,
+                            lockToggle: lockToggle.checked,
+                            commentLockToggle: commentLockToggle.checked,
+                            banToggle: banToggle.checked,
+                            ban_duration: ban_duration.value,
+                            ban_reason: ban_reason.value,
+                            ban_message: ban_message.value,
+                            ban_note: ban_note.value,
+                            usernoteToggle: usernoteToggle.checked,
+                            usernote_note: usernote_note.value,
+                            usernote_warning_type: usernote_warning_type.value,
+                            enableOnAdd: enableOnAdd.checked
+                        },
+                        type: 'POST',
+                        url: '/api/reason/create'
+                    })
+                        .done(function (data) {
+                            console.log(data);
+                            if (data.reasonExists) {
+                                flair_text.className = "form-control is-invalid";
+                                flair_textFeedback.innerText = "This flair already exists for this subreddit!"
+                                $('#reasonCreateNew').prop('disabled', false);
+                                $('#reasonCreateNew').prop('class', 'btn btn-primary');
+                                $('#reasonCreateNew').html('Create');
+                            } else {
+                                addRow(data);
+                                $('#reasonCreateNew').html('Created');
+                                $('#reasonCreateNew').prop('disabled', false);
+                                $('#reasonCreateNew').prop('class', 'btn btn-primary');
+                                $('#reasonCreateNew').html('Create and New');
+                                resetForm(true);
+                                event.preventDefault();
+                                return false;
+                                popNotification(data.success, data.error);
+                            }
+                        });
+                }
+            });
+
+            $("#commentToggle").click(function () {
+                commentEntry.hidden = !commentToggle.checked;
+                commentInput.required = commentToggle.checked;
+                commentInput.style.minHeight = '54px'
+            });
+            $("#banToggle").click(function () {
+                banGroup.hidden = !banToggle.checked;
+            });
+            $("#usernoteToggle").click(function () {
+                usernoteGroup.hidden = !usernoteToggle.checked;
+            });
         });
     </script>
     <script>
@@ -117,7 +467,7 @@
     </ul>
     <div id="myTabContent" class="tab-content">
         <div class="tab-pane fade active show" id="settings">
-            <div class="container">
+            <div class="container" style="margin-top: 25px">
                 <form action="/subreddits/{{ subreddit.subreddit }}" method="post">
                     <div class="form-group">
                         <div class="col-lg-3">
@@ -153,10 +503,10 @@
                             </div>
                             <div class="form-group">
                                 {% if subreddit.webhook_type != 'discord' and subreddit.webhook_type != 'slack' and subreddit.webhook_type %}
-                                    <label id="customWebhookLabel" for="customWebhook">Custom Webhook Type</label>
+                                    <label id="customWebhookLabel" for="customWebhookType">Custom Webhook Type</label>
                                     <input type="text" value="{{ subreddit.webhook_type }}" name="webhookType" class="form-control" id="customWebhookType">
                                 {% else %}
-                                    <label hidden id="customWebhookLabel" for="customWebhook">Custom Webhook Type</label>
+                                    <label hidden id="customWebhookLabel" for="customWebhookType">Custom Webhook Type</label>
                                     <input hidden type="text" value="{{ subreddit.webhook_type }}" name="webhookType" class="form-control" id="customWebhookType">
                                 {% endif %}
                             </div>
@@ -185,14 +535,14 @@
                             </div>
                         </div>
                         {% if subreddit.header %}
-                            <div data-class="form-group" id="headerEntry" data-name="Header" data-nameLower="header" data-previewName="Header Preview" data-formName="headerText" data-text="{% if subreddit.header %}{{ subreddit.header }}{% endif %}" data-placeholder="Removal reason header..."></div>
+                            <div data-class="form-group" id="headerEntry" data-name="Header" data-nameLower="header" data-previewName="Header Preview" data-formName="headerText" data-text="{% if subreddit.header %}{{ subreddit.header }}{% endif %}" data-placeholder="Removal reason header..." data-subreddit="{{ subreddit.subreddit }}"></div>
                         {% else %}
-                            <div hidden data-class="form-group" id="headerEntry" data-name="Header" data-nameLower="header" data-previewName="Header Preview" data-formName="headerText" data-text="{% if subreddit.header %}{{ subreddit.header }}{% endif %}" data-placeholder="Removal reason header..."></div>
+                            <div hidden data-class="form-group" id="headerEntry" data-name="Header" data-nameLower="header" data-previewName="Header Preview" data-formName="headerText" data-text="{% if subreddit.header %}{{ subreddit.header }}{% endif %}" data-placeholder="Removal reason header..." data-subreddit="{{ subreddit.subreddit }}"></div>
                         {% endif %}
                         {% if subreddit.footer %}
-                            <div data-class="form-group" id="footerEntry" data-name="Footer" data-nameLower="footer" data-previewName="Footer Preview" data-formName="footerText" data-text="{% if subreddit.footer %}{{ subreddit.footer }}{% endif %}" data-placeholder="Removal reason footer..."></div>
+                            <div data-class="form-group" id="footerEntry" data-name="Footer" data-nameLower="footer" data-previewName="Footer Preview" data-formName="footerText" data-text="{% if subreddit.footer %}{{ subreddit.footer }}{% endif %}" data-placeholder="Removal reason footer..." data-subreddit="{{ subreddit.subreddit }}"></div>
                         {% else %}
-                            <div hidden data-class="form-group" id="footerEntry" data-name="Footer" data-nameLower="footer" data-previewName="Footer Preview" data-formName="footerText" data-text="{% if subreddit.footer %}{{ subreddit.footer }}{% endif %}" data-placeholder="Removal reason footer..."></div>
+                            <div hidden data-class="form-group" id="footerEntry" data-name="Footer" data-nameLower="footer" data-previewName="Footer Preview" data-formName="footerText" data-text="{% if subreddit.footer %}{{ subreddit.footer }}{% endif %}" data-placeholder="Removal reason footer..." data-subreddit="{{ subreddit.subreddit }}"></div>
                         {% endif %}
                         <div class="form-group">
                             <button class="btn btn-primary" name="submit_button" type="submit" value="submit">Submit Changes</button>
@@ -204,29 +554,13 @@
                 {% else %}
                     <button class="btn btn-success" id="{{ subreddit.subreddit }}_toggle" onclick="toggleSubreddit('{{ subreddit.subreddit }}', true)" data-target="">Enable</button>
                 {% endif %}
-                <button class="btn btn-danger" id="delete" data-toggle="modal" data-target="#confirmationModal">Delete Subreddit</button>
-                <div class="modal fade" id="confirmationModal" tabindex="-1" role="dialog" aria-labelledby="confirmationModalLabel" aria-hidden="true">
-                    <div class="modal-dialog" role="document">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="confirmationModalLabel">Confirmation</h5>
-                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                            </div>
-                            <div class="modal-body">Are you <strong>sure</strong> you want to delete /r/{{ subreddit.subreddit }}?</div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                <button type="button" class="btn btn-danger" data-dismiss="modal" id="deleteConfirm">Delete this subreddit</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <button class="btn btn-danger" id="delete" onclick="showDeleteModal('{{ subreddit.subreddit }}')">Delete Subreddit</button>
             </div>
-            <script src="../static/dist/bundle.js" type="text/javascript"></script>
         </div>
         <div class="tab-pane fade" id="removalReasons">
-            <div class="container">
+            <div class="container" style="margin-top: 25px">
                 <div class="table-responsive">
-                    <table class="table table-hover table-bordered table-striped" id="removal_reasons">
+                    <table class="table table-hover table-bordered table-striped" id="reasons">
                         <thead class="thead-dark">
                         <tr>
                             <th scope="col">Flair Text<sup>
@@ -261,7 +595,7 @@
                         <span class="d-inline-block" style="opacity: 0.6" tabindex="0" data-toggle="tooltip"
                               title="Indicates if the removal reason is enabled or not">
                             <i class="far fa-question-circle"></i></span></sup></th>
-                            <th scope="col">Edit<sup>
+                            <th scope="col" data-sorter="false">Edit<sup>
                         <span class="d-inline-block" style="opacity: 0.6" tabindex="0" data-toggle="tooltip"
                               title="Edit removal reason settings">
                             <i class="far fa-question-circle"></i></span></sup></th>
@@ -315,113 +649,171 @@
                                     {% endif %}
                                 </td>
                                 <td>
-                                    <div class="dropdown">
-                                        <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                            <i class="fas fa-ellipsis-h"></i>
-                                        </a>
-                                        <div class="dropdown-menu">
-                                            <a class="dropdown-item" href="/reasons/{{ reason.id }}">Edit</a>
-                                            {% if reason.enabled %}
-                                                <a class="dropdown-item" id="{{ reason.id }}_toggle" style="color: #E74C3C" onclick="toggleReason('{{ reason.id }}', false)">Disable</a>
-                                            {% else %}
-                                                <a class="dropdown-item" id="{{ reason.id }}_toggle" style="color: #00bc8c" onclick="toggleReason('{{ reason.id }}', true)">Enable</a>
-                                            {% endif %}
-                                            <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item" onclick="showDeleteModal('{{ reason.id }}', {{ loop.index }})" style="color: red">Delete</a>
+                                    <div class="btn-group" role="group" aria-label="Button group with nested dropdown">
+                                        <button type="button" class="btn btn-primary" onclick="location.href='/reasons/{{ reason.id }}'">Edit</button>
+                                        <div class="btn-group" role="group">
+                                            <button id="btnGroupDrop1" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
+                                            <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                                                <a class="dropdown-item" href="/reasons/{{ reason.id }}">Edit</a>
+                                                {% if reason.enabled %}
+                                                    <a class="dropdown-item" id="{{ reason.id }}_toggle" style="color: #E74C3C" onclick="toggleReason('{{ reason.id }}', false)">Disable</a>
+                                                {% else %}
+                                                    <a class="dropdown-item" id="{{ reason.id }}_toggle" style="color: #00bc8c" onclick="toggleReason('{{ reason.id }}', true)">Enable</a>
+                                                {% endif %}
+                                                <div class="dropdown-divider"></div>
+                                                <a class="dropdown-item" onclick="showDeleteModalFlair('{{ reason.flair_text }}', '{{ reason.subreddit }}', '{{ reason.id }}', {{ loop.index }})" style="color: red">Delete</a>
+                                            </div>
                                         </div>
                                     </div>
+                                    {#                                    <div class="dropdown">#}
+                                    {#                                        <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">#}
+                                    {#                                            <i class="fas fa-ellipsis-h"></i>#}
+                                    {#                                        </a>#}
+                                    {#                                        <div class="dropdown-menu">#}
+                                    {#                                        </div>#}
+                                    {#                                    </div>#}
                                 </td>
                             </tr>
                         {% endfor %}
                         </tbody>
                     </table>
-                    <button class="btn btn-primary" id="addSubreddit" data-toggle="modal" data-target="#newSubredditModal">Add Subreddit</button>
-                    <div class="modal fade" id="newSubredditModal" tabindex="-1" role="dialog" aria-labelledby="newSubredditModalLabel" aria-hidden="true">
-                        <div class="modal-dialog" role="document">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="newSubredditModalLabel">Add Subreddit</h5>
-                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                                </div>
-                                <div class="modal-body">
-                                    <form id="addSubredditForm">
-                                        <div class="form-group">
-                                            <div class="col-lg-8">
-                                                <label class="control-label" for="subreddit">Subreddit</label>
-                                                <div class="subName" id="subName">
-                                                    <div class="input-group mb-2">
-                                                        <div class="input-group-prepend" id="subredditPrepend">
-                                                            <span class="input-group-text">/r/</span>
-                                                        </div>
-                                                        <input class="form-control" id="subreddit" name="subreddit" onkeypress="clearInvalidState(this)" placeholder="Subreddit" required>
-                                                        <div class="invalid-feedback" id="subredditFeedback">That subreddit doesn't exist!</div>
-                                                    </div>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label for="bot_account">Bot Account</label>
-                                                    <div class="botAccount" id="botAccount">
-                                                        <div class="input-group mb-3">
-                                                            <div class="input-group-prepend" id="bot_accountPrepend">
-                                                                <span class="input-group-text">/u/</span>
-                                                            </div>
-                                                            <input class="form-control" id="bot_account" name="botAccount" onkeypress="clearInvalidState(this)" placeholder="Account the bot will run as" required>
-                                                            <div class="invalid-feedback" id="bot_accountFeedback">That redditor doesn't exist!</div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label for="webhookType">Webhook Type</label>
-                                                    <select class="custom-select" id="webhookType" name="webhookType">
-                                                        <option selected>None</option>
-                                                        <option value="discord">Discord</option>
-                                                        <option value="slack">Slack</option>
-                                                        <option value="custom">Custom</option>
-                                                    </select>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label hidden id="customWebhookLabel" for="customWebhookType">Custom Webhook Type</label>
-                                                    <input hidden type="text" value="" name="webhookType" class="form-control" id="customWebhookType">
-                                                </div>
-                                                <div class="form-group">
-                                                    <label hidden id='webhookurlLabel' for="webhookurl">Webhook URL</label>
-                                                    <input hidden type="text" value="" name="group" class="form-control" id="webhookurl">
-                                                </div>
-                                            </div>
-                                            <div class="form-group">
-                                                <div class="custom-control custom-switch">
-                                                    <input type="checkbox" class="custom-control-input" id="headerToggle" name="headerToggle">
-                                                    <label class="custom-control-label" for="headerToggle">Header</label>
-                                                    <small id="headerHelp" class="form-text text-muted">Enable header for removal comments</small>
-                                                </div>
-                                            </div>
-                                            <div class="form-group">
-                                                <div class="custom-control custom-switch">
-                                                    <input type="checkbox" class="custom-control-input" id="footerToggle" name="footerToggle">
-                                                    <label class="custom-control-label" for="footerToggle">Footer</label>
-                                                    <small id="footerHelp" class="form-text text-muted">Enable footer for removal comments</small>
-                                                </div>
-                                            </div>
-                                            <div hidden data-class="form-group" id="headerEntry" data-name="Header" data-nameLower="header" data-previewName="Header Preview" data-formName="headerText" data-text data-placeholder="Removal reason header..."></div>
-                                            <div hidden data-class="form-group" id="footerEntry" data-name="Footer" data-nameLower="footer" data-previewName="Footer Preview" data-formName="footerText" data-text data-placeholder="Removal reason footer..."></div>
-                                            <div class="modal-footer">
-                                                <div class="custom-control custom-switch">
-                                                    <input type="checkbox" class="custom-control-input" id="enableOnAdd" name="headerToggle">
-                                                    <label class="custom-control-label" for="enableOnAdd">Enable</label>
-                                                    <small id="enableOnAddHelp" class="form-text text-muted">Enable FlairBot on add</small>
-                                                </div>
-                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                                                <button type="submit" name="submit" class="btn btn-primary" id="subredditAdd">Add</button>
-                                            </div>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
+                    <button class="btn btn-primary" id="addReason" data-toggle="modal" data-target="#newReasonModal">Create Reason</button>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="confirmationModal" tabindex="-1" role="dialog" aria-labelledby="confirmationModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="confirmationModalLabel">Confirmation</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    </div>
+                    <div id="delete-modal-body" class="modal-body">Are you <strong>sure</strong> you want to delete /r/ and all of its associated removal reasons?</div>
+                    <div id="delete-modal-footer" class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-danger" data-dismiss="modal" id="deleteConfirm">Delete this subreddit</button>
                     </div>
                 </div>
             </div>
         </div>
+        <div class="modal fade" id="newReasonModal" tabindex="-1" role="dialog" aria-labelledby="newReasonModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="newReasonModalLabel">Create Reason</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="createRemovalReasonForm">
+                            <div class="form-group">
+                                <div class="col-lg-8">
+                                    <label class="control-label" for="subreddit">Subreddit</label>
+                                    <div class="subName" id="subName">
+                                        <div class="input-group mb-2">
+                                            <div class="input-group-prepend" id="subredditPrepend">
+                                                <span class="input-group-text">/r/</span>
+                                            </div>
+                                            <select class="custom-select" id="subreddit" disabled>
+                                                <option selected value="{{ subreddit.subreddit }}">{{ subreddit.subreddit }}</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="flair_text">Flair Text</label>
+                                        <div class="flairText" id="flairText">
+                                            <div class="input-group mb-3">
+                                                <input class="form-control" id="flair_text" name="flairText" placeholder="The flair the bot will look for" onkeypress="clearInvalidState(this)" required>
+                                                <div class="invalid-feedback" id="flair_textFeedback">This flair already exists for this subreddit!</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label id="flair_description" for="description">Description</label>
+                                    <input type="text" value="" name="flairDescription" class="form-control" id="description" placeholder="Descripton that will be logged in selected destination">
+                                </div>
+                                <div class="form-group">
+                                    <div class="custom-control custom-switch">
+                                        <input type="checkbox" class="custom-control-input" id="lockToggle" name="lockToggle">
+                                        <label class="custom-control-label" for="lockToggle">Lock</label>
+                                        <small id="lockHelp" class="form-text text-muted">Lock removed post's comments</small>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="custom-control custom-switch">
+                                        <input type="checkbox" class="custom-control-input" id="commentLockToggle" name="commentLockToggle">
+                                        <label class="custom-control-label" for="commentLockToggle">Lock Removal Comment</label>
+                                        <small id="commentLockHelp" class="form-text text-muted">Disable replies to removal comment</small>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="custom-control custom-switch">
+                                        <input type="checkbox" class="custom-control-input" id="banToggle" name="banToggle">
+                                        <label class="custom-control-label" for="banToggle">Ban</label>
+                                        <small id="banHelp" class="form-text text-muted">Ban user of removed post</small>
+                                    </div>
+                                </div>
+                                <div class="col-lg-8" id="banGroup">
+                                    <div class="form-group">
+                                        <label for="ban_duration">Ban Duration (Days - 0 for permaban)</label>
+                                        <input class="form-control" type="number" name="ban_duration" min="0" pattern="[0-9]*" id="ban_duration" inputmode="tel" value="0">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="ban_reason">Ban Reason</label>
+                                        <input type="text" value="" name="ban_reason" class="form-control" id="ban_reason" placeholder="Subreddit/site rule broken or other.">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="ban_message">Ban Message</label>
+                                        <input type="text" value="" name="ban_message" class="form-control" id="ban_message" placeholder="Message sent to the user">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="ban_note">Ban Note</label>
+                                        <input type="text" value="" name="ban_note" class="form-control" id="ban_note" placeholder="Private mod note">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="custom-control custom-switch">
+                                        <input type="checkbox" class="custom-control-input" id="usernoteToggle" name="usernoteToggle">
+                                        <label class="custom-control-label" for="usernoteToggle">User note</label>
+                                        <small id="usernoteHelp" class="form-text text-muted">Create User note on author of removed post</small>
+                                    </div>
+                                </div>
+                                <div class="col-lg-8" id="usernoteGroup">
+                                    <div class="form-group">
+                                        <label for="usernote_note">Note</label>
+                                        <input type="text" value="" name="usernote_note" class="form-control" id="usernote_note" placeholder="Note to be left for author of removed post">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="usernote_warning_type">Warning Type</label>
+                                        <small id="usernote_warning_typeHelp" class="form-text text-muted">Type of note. Must exactly match toolbox note types. Leave blank for no type.</small>
+                                        <input type="text" value="" name="usernote_warning_type" class="form-control" id="usernote_warning_type" placeholder="User note Warning type">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="custom-control custom-switch">
+                                        <input type="checkbox" class="custom-control-input" id="commentToggle" name="commentToggle">
+                                        <label class="custom-control-label" for="commentToggle">Comment</label>
+                                        <small id="headerHelp" class="form-text text-muted">Have the bot leave a removal comment</small>
+                                    </div>
+                                </div>
+                                <div data-class="form-group" id="commentEntry" data-header="{{ subreddit.header }}" data-footer="{{ subreddit.footer }}" data-name="Comment" data-nameLower="comment" data-previewName="Comment Preview" data-formName="commentText" data-text="" data-placeholder="Removal comment..." data-subreddit="{{ subreddit.subreddit }}"></div>
+
+                                <div class="modal-footer">
+                                    <div class="custom-control custom-switch">
+                                        <input type="checkbox" class="custom-control-input" id="enableOnAdd" name="enableToggle" checked>
+                                        <label class="custom-control-label" for="enableOnAdd">Enable</label>
+                                    </div>
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                    <button type="submit" name="submit" class="btn btn-primary" id="reasonCreateNew">Create and New</button>
+                                    <button type="submit" name="submit" class="btn btn-primary" id="reasonCreate">Create</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </div>
+        <script src="../static/dist/bundle.js" type="text/javascript"></script>
     </div>
     </body>
 {% endblock %}

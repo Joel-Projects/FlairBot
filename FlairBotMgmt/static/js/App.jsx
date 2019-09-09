@@ -16,7 +16,8 @@ export default class App extends React.Component {
             name: this.props.id,
             nameLower: this.props.namelower,
             previewName: this.props.previewname,
-            formName: this.props.formname
+            formName: this.props.formname,
+            subreddit: this.props.subreddit
         };
         this.handleLoad = this.handleLoad.bind(this);
     }
@@ -26,17 +27,23 @@ export default class App extends React.Component {
     }
 
     handleChange(e) {
-        this.textOutput.innerHTML = `${Snudown.markdown(this.textInput.value)}`;
+        if (this.state.subreddit == null) {
+            this.state.subreddit = 'pics'
+        }
+        this.textOutput.innerHTML = `${Snudown.markdown(this.textInput.value.replace('{subreddit}', this.state.subreddit).replace('{author}', 'spez').replace('{kind}', 'submission').replace('{domain}', 'i.imgur.com').replace('{url}', 'https://redd.it/d0ftu6').replace('{title}', 'For some people, this would be a dream come true.'))}`;
         this.newHeight = this.textInput.scrollHeight + 2;
         this.textInput.style.minHeight = "auto";
         this.textInput.setAttribute("style", "height:" + this.newHeight + "px");
     }
 
     handleLoad() {
-        this.inputLabel.textContent = this.props.name
-        this.previewLabel.textContent = this.state.previewName
-        // this.textInput.setAttribute("class", "form-control");
-        this.textOutput.innerHTML = `${Snudown.markdown(this.textInput.value)}`;
+        this.inputLabel.textContent = this.props.name;
+        this.previewLabel.textContent = this.state.previewName;
+        // this.textInput.setAttribute("class", "form-control")
+        if (this.state.subreddit == null) {
+            this.state.subreddit = 'pics'
+        }
+        this.textOutput.innerHTML = `${Snudown.markdown(this.textInput.value.replace('{subreddit}', this.state.subreddit).replace('{author}', 'spez').replace('{kind}', 'submission').replace('{domain}', 'i.imgur.com').replace('{url}', 'https://redd.it/d0ftu6').replace('{title}', 'For some people, this would be a dream come true.'))}`;
         this.newHeight = this.textInput.scrollHeight + 2;
         this.textInput.style.minHeight = "54px";
         this.textInput.setAttribute("style", "height:" + this.newHeight + "px");

@@ -19,3 +19,11 @@ function popNotification(success, error) {
 $(document).ready(function () {
     $('[data-toggle="tooltip"]').tooltip();
 });
+
+$(function () {
+    $('a').each(function () {
+        if ($(this).prop('href') == window.location.href) {
+            $(this).addClass('active');
+        }
+    });
+});

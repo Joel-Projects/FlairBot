@@ -21,40 +21,63 @@ def viewRemovalReason(reason_id):
     removalReason = RemovalReason.query.filter_by(id=reason_id).first()
     subreddits = Subreddit.query.all()
     if removalReason:
-        subreddit = Subreddit.query.filter_by(subreddit=removalReason.subreddit).first()
-        header = subreddit.header
-        footer = subreddit.footer
         if request.method == 'POST':
-            bot_account = request.form['botAccount']
-            webhook_type = request.form['webhookType']
-            webhook = request.form['webhook']
-            if not webhook:
-                webhook_type = None
-            headerToggle = request.form.get('headerToggle')
-            footerToggle = request.form.get('footerToggle')
-            header = request.form['headerText']
-            footer = request.form['footerText']
-            if not headerToggle:
-                header = None
-            if not footerToggle:
-                footer = None
+            reasonId = reason_id
+            subreddit = request.form['subreddit']
+            flair_text = request.form['flair_text']
+            description = request.form['description']
+            commentToggle = request.form.get('commentToggle') == 'true'
+            if commentToggle:
+                commentInput = request.form['commentInput']
+            else:
+                commentInput = None
+            lockToggle = request.form.get('lockToggle') == 'true'
+            commentLockToggle = request.form.get('commentLockToggle') == 'true'
+            banToggle = request.form.get('banToggle') == 'true'
+            if banToggle:
+                ban_duration = request.form['ban_duration']
+                ban_reason = request.form['ban_reason']
+                ban_message = request.form['ban_message']
+                ban_note = request.form['ban_note']
+            else:
+                ban_duration = None
+                ban_reason = None
+                ban_message = None
+                ban_note = None
+            usernoteToggle = request.form.get('usernoteToggle') == 'true'
+            if usernoteToggle:
+                usernote_note = request.form['usernote_note']
+                usernote_warning_type = request.form['usernote_warning_type']
+            else:
+                usernote_note = None
+                usernote_warning_type = None
+            reason = RemovalReason.query.filter_by(id=reasonId).first()
             notification = {'success': None, 'error': None}
             try:
-                if removalReason:
-                    removalReason.bot_account = bot_account
-                    removalReason.webhook_type = webhook_type
-                    removalReason.webhook = webhook
-                    removalReason.header = header
-                    removalReason.footer = footer
-                    db.session.merge(removalReason)
-                    removalReasonEditType = 'Updated'
+                if reason:
+                    reason.subreddit = subreddit
+                    reason.flair_text = flair_text
+                    reason.description = description
+                    reason.comment = commentInput
+                    reason.lock = lockToggle
+                    reason.lock_comment = commentLockToggle
+                    reason.ban = banToggle
+                    reason.ban_duration = ban_duration
+                    reason.ban_reason = ban_reason
+                    reason.ban_message = ban_message
+                    reason.ban_note = ban_note
+                    reason.usernote = usernoteToggle
+                    reason.usernote_note = usernote_note
+                    reason.usernote_warning_type = usernote_warning_type
+                    db.session.merge(reason)
+                    reasonEditType = 'Updated'
                 else:
-                    removalReason = removalReason(bot_account=bot_account, webhook_type=webhook_type, webhook=webhook, header=header, footer=footer)
-                    db.session.add(removalReason)
-                    removalReasonEditType = 'Created'
+                    reason = RemovalReason(subreddit=subreddit, flair_text=flair_text, description=description, comment=commentInput, lock=lockToggle, lock_comment=commentLockToggle, ban=banToggle, ban_duration=ban_duration, ban_reason=ban_reason, ban_message=ban_message, ban_note=ban_note, usernote=usernoteToggle, usernote_note=usernote_note, usernote_warning_type=usernote_warning_type)
+                    db.session.add(subreddit)
+                    reasonEditType = 'Created'
                 db.session.commit()
 
-                notification['success'] = f'{removalReasonEditType} r/{removalReason.removalReason} successfully!'
+                notification['success'] = f'{reasonEditType} "{reason.flair_text}" for r/{reason.subreddit} successfully!'
             except Exception as error:
                 notification['error'] = error
         return render_template('edit_removal_reason.html', removalReason=removalReason, notification=notification, subreddits=subreddits), 202

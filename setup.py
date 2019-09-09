@@ -7,13 +7,16 @@ setup(
     install_requires=[
         'flask',
         'flask-login',
+        'flask-sqlalchemy',
+        'flask-markdown',
+        'jinja2',
+        'sqlalchemy',
         'SpazUtils',
         'sentry-sdk[flask]==0.10.2',
         'psycopg2-binary',
-        'jinja2',
-        'sqlalchemy',
-        'flask-sqlalchemy',
-        'werkzeug', 'sshtunnel', 'datadog'
+        'werkzeug',
+        'sshtunnel',
+        'datadog', 'praw'
     ],
 )
 

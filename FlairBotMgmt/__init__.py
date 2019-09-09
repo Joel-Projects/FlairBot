@@ -1,9 +1,5 @@
 import sentry_sdk, sys, datadog, logging.config, logging, praw
 
-from BotUtils import CommonUtils
-from BotUtils.CommonUtils import BotServices
-from pathlib import Path
-
 from sentry_sdk.integrations.flask import FlaskIntegration
 from sentry_sdk.integrations.logging import LoggingIntegration
 from datadog_logger import DatadogLogHandler
@@ -11,10 +7,12 @@ from datadog_logger import DatadogLogHandler
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
+from flaskext.markdown import Markdown
 from flask_debugtoolbar import DebugToolbarExtension
 
 server = None
-remote = sys.platform == 'darwin'
+# remote = sys.platform == 'darwin'
+remote = False
 dsn = 'https://c9c6048b785542d99466b1bc74a3f3cb@sentry.jkpayne.com/20'
 config = {"version": 1, "formatters": {"default": {"format": "%(asctime)s | %(levelname)-8s | %(message)s", "datefmt": "%m/%d/%Y %I:%M:%S %p"}}, "handlers": {"consoleHandler": {"class": "logging.StreamHandler", "level": ('INFO', 'DEBUG')[sys.platform == 'darwin'], "formatter": "default", "stream": "ext://sys.stdout"}}, "loggers": {'FlairBotMgmt': {"level": "INFO", "handlers": ["consoleHandler"]}}}
 sentry_logging = LoggingIntegration(level=logging.INFO)
@@ -39,7 +37,7 @@ app.url_map.strict_slashes = False
 app.jinja_env.cache = {}
 app.jinja_env.trim_blocks = True
 app.jinja_env.lstrip_blocks = True
-app.jinja_env.auto_reload = True
+# app.jinja_env.auto_reload = True
 app.config['SECRET_KEY'] = b"\xf05s\\\x07\xddAM\xb6\xf4x]qOf\xb3\x03\xa1\xdf:\x19K'\x99\xd8%\x17n\x84\xf7+V\xf3/H\xebi'\x94\xee\x06\x9fB\x81\x19(\xca\xd0\x10\xef\xd2\xf1Rk\xbc\x8e\xb2-/D\xc5\xe4\x92\x91"
 
 app.config['SQLALCHEMY_DATABASE_URI'] = f'postgresql://flairbot:52939L%t6eV3910t@{"digitalocean.jkpayne.com" if remote else "localhost"}/postgres'
@@ -53,14 +51,13 @@ login_manager = LoginManager()
 login_manager.login_view = 'auth.login'
 
 db.init_app(app)
-
+Markdown(app)
 # DebugToolbarExtension().init_app(app)
 login_manager.init_app(app)
 
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
-
 
 for blueprint in blueprints:
     try:

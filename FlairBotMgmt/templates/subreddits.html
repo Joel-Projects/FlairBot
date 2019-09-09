@@ -34,8 +34,8 @@
                 url: '/api/subreddit/toggle'
             })
                 .done(function notify(data) {
-                    var elem = document.getElementById(data.subreddit + "_toggle");
-                    var icon = document.getElementById(data.subreddit + "_icon");
+                    var elem = document.getElementById(`${data.subreddit}_toggle`);
+                    var icon = document.getElementById(`${data.subreddit}_icon`);
                     if (data.enabled) {
                         elem.textContent = "Disable";
                         elem.style.color = "#E74C3C";
@@ -51,7 +51,7 @@
                         var toastStatus = "disabled";
                     }
                     elem.setAttribute("class", "dropdown-item");
-                    popNotification('Successfully ' + toastStatus + ' FlairBot for r/' + data.subreddit, data.error);
+                    popNotification(`Successfully ${toastStatus} FlairBot for r/${data.subreddit}`, data.error);
                 });
         }
 
@@ -64,8 +64,8 @@
         });
 
         function showDeleteModal(subreddit, row_id) {
-            document.getElementById('delete-modal-body').innerHTML = "Are you <strong>sure</strong> you want to delete /r/" + subreddit + " and all of its associated removal reasons?";
-            document.getElementById('delete-modal-footer').innerHTML = '<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button><button type="button" class="btn btn-danger" onclick="deleteSubreddit(' + "'" + subreddit + "'," + row_id + ')" data-dismiss="modal" id="deleteConfirm">Delete this subreddit</button>';
+            document.getElementById('delete-modal-body').innerHTML = `Are you <strong>sure</strong> you want to delete /r/${subreddit} and all of its associated removal reasons?`;
+            document.getElementById('delete-modal-footer').innerHTML = `<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button><button type="button" class="btn btn-danger" onclick="deleteSubreddit('${subreddit}',${row_id})" data-dismiss="modal" id="deleteConfirm">Delete this subreddit</button>`;
             $('#confirmationModal').modal('show')
         }
 
@@ -82,7 +82,7 @@
                 .done(function (data) {
                     console.log(data);
                     if (data.success) {
-                        popNotification('Successfully deleted FlairBot for r/' + data.subreddit, data.error);
+                        popNotification(`Successfully deleted FlairBot for r/${data.subreddit}`, data.error);
                         document.getElementById("subreddits").deleteRow(row_id);
                     }
                 });
@@ -189,17 +189,24 @@
                                 webhook_type.innerHTML = webhookType;
                                 let enabled = row.insertCell();
                                 if (data.subreddit.enabled) {
-                                    buttonType = 'danger';
-                                    enableButtonStatus = 'Disable';
-                                    toggleState = false
+                                    enabled.innerHTML = `<i class="fas fa-check" id="${data.subreddit.subreddit}_icon" style="font-size: 28px;color: #00bc8c"></i>`;
+                                    enableButtonStatus = `<a class="dropdown-item" id="${data.subreddit.subreddit}_toggle" style="color: #E74C3C" onclick="toggleSubreddit('${data.subreddit.subreddit}', false)">Disable</a>`;
                                 } else {
-                                    buttonType = 'success';
-                                    enableButtonStatus = 'Enable';
-                                    toggleState = true
+                                    enabled.innerHTML = `<i class="fas fa-times" id="${data.subreddit.subreddit}_icon" style="font-size: 28px; color: #E74C3C"></i>`;
+                                    enableButtonStatus = `<a class="dropdown-item" id="${data.subreddit.subreddit}_toggle" style="color: #00bc8c" onclick="toggleSubreddit('${data.subreddit.subreddit}', true)">Enable</a>`;
                                 }
-                                enabled.innerHTML = "<button class=\"btn btn-" + buttonType + "\" id=" + data.subreddit.subreddit + "_toggle onclick=\"toggleSubreddit('" + data.subreddit.subreddit + "', " + toggleState + ")\">" + enableButtonStatus + "</button>";
                                 let edit = row.insertCell();
-                                edit.innerHTML = "<a href=\"/subreddits/" + data.subreddit.subreddit + "\" class=\"btn btn-primary\">Edit</a>";
+                                edit.innerHTML = `<div class="dropdown">
+                                <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <i class="fas fa-ellipsis-h"></i>
+                                </a>
+                                <div class="dropdown-menu">
+                                    <a class="dropdown-item" href="/subreddits/${data.subreddit.subreddit}">Edit</a>
+                                      ${enableButtonStatus}
+                                    <div class="dropdown-divider"></div>
+                                    <a class="dropdown-item" onclick="showDeleteModal('${data.subreddit.subreddit}', ${row.rowIndex})" style="color: red">Delete</a>
+                                </div>
+                            </div>`;
                                 $('#subredditAdd').html('Added');
                                 $('#newSubredditModal').modal('hide');
                                 $('#subredditAdd').prop('disabled', false);
@@ -294,19 +301,20 @@
                             {% endif %}
                         </td>
                         <td>
-                            <div class="dropdown">
-                                <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    <i class="fas fa-ellipsis-h"></i>
-                                </a>
-                                <div class="dropdown-menu">
-                                    <a class="dropdown-item" href="/subreddits/{{ subreddit.subreddit }}">Edit</a>
-                                    {% if subreddit.enabled %}
+                            <div class="btn-group" role="group" aria-label="Button group with nested dropdown">
+                                <button type="button" class="btn btn-primary" onclick="location.href='/subreddits/{{ subreddit.subreddit }}'">Edit</button>
+                                <div class="btn-group" role="group">
+                                    <button id="btnGroupDrop1" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
+                                    <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                                        <a class="dropdown-item" href="/subreddits/{{ subreddit.subreddit }}">Edit</a>
+                                        {% if subreddit.enabled %}
                                         <a class="dropdown-item" id="{{ subreddit.subreddit }}_toggle" style="color: #E74C3C" onclick="toggleSubreddit('{{ subreddit.subreddit }}', false)">Disable</a>
-                                    {% else %}
+                                        {% else %}
                                         <a class="dropdown-item" id="{{ subreddit.subreddit }}_toggle" style="color: #00bc8c" onclick="toggleSubreddit('{{ subreddit.subreddit }}', true)">Enable</a>
-                                    {% endif %}
-                                    <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item" onclick="showDeleteModal('{{ subreddit.subreddit }}', {{ loop.index }})" style="color: red">Delete</a>
+                                        {% endif %}
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item" onclick="showDeleteModal('{{ subreddit.subreddit }}', {{ loop.index }})" style="color: red">Delete</a>
+                                    </div>
                                 </div>
                             </div>
                         </td>

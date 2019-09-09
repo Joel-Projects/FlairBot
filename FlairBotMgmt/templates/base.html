@@ -88,6 +88,8 @@
                     {% endif %}
                     {% if current_user.admin %}
                         <a class="nav-item nav-link" href="/admin">Admin</a>
+                    {% endif %}
+                    {% if current_user.is_authenticated %}
                         <a class="nav-item nav-link" href="/logout">Logout</a>
                     {% endif %}
                 </div>
@@ -101,8 +103,6 @@
                     {% endif %}
                 </div>
             </div>
-            </div>
-            </div>
         </nav>
     {% endblock %}
     {#    <div class="jumbotron">#}
@@ -112,7 +112,6 @@
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="{{ url_for('main.dash') }}">Home</a></li>
                 {% block breadCrumbs %}
-
                 {% endblock %}
             </ol>
         </h5>
