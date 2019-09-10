@@ -9,4 +9,6 @@ psycopg2-binary
 werkzeug
 sshtunnel
 datadog
+datadog_logger
 praw
+flask_debugtoolbar

@@ -7,7 +7,14 @@ db = db
 requiresAdmin, validateSubreddit, validateSubredditForm = requiresAdmin, validateSubreddit, validateSubredditForm
 User, Subreddit, RemovalReason = User, Subreddit, RemovalReason
 
-blueprints = [i[:-3] for i in os.listdir(os.path.join(os.path.curdir, 'FlairBotMgmt', 'blueprints')) if i != '__init__.py' and i != '__pycache__']
+blueprintsPath = os.path.join(os.path.curdir, 'FlairBotMgmt', 'blueprints')
+
+if os.path.isdir(blueprintsPath):
+    blueprintFiles = os.listdir(blueprintsPath)
+else:
+    blueprintFiles = os.listdir(os.path.join(os.path.curdir, 'blueprints'))
+
+blueprints = [i[:-3] for i in blueprintFiles if i != '__init__.py' and i != '__pycache__']
 for blueprint in blueprints:
     importlib.import_module(f'.{blueprint}', 'FlairBotMgmt.blueprints')
 

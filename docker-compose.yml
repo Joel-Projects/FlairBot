@@ -1,0 +1,44 @@
+version: "3.7"
+
+x-defaults: &defaults
+    domainname: ${DOMAIN_NAME}
+    restart: unless-stopped
+    networks:
+        - default
+    environment:
+        TZ: America/Chicago
+
+x-traefik: &traefik
+    traefik.enable: true
+    traefik.docker.network: traefik_proxy
+
+x-traefik-net: &traefik-net
+    networks:
+        - default
+        - traefik_proxy
+
+x-sentry: &sentry
+    <<: *defaults
+    build: ./sentry/
+    depends_on:
+        - redis
+        - rabbitmq
+        - postgres
+        - memcached
+        - sentry_smtp
+    env_file: ./sentry/.env
+    volumes:
+        - ./sentry/data/:/var/lib/sentry/files
+
+services:
+
+    flairbot:
+        <<: [*traefik-net, *defaults]
+        build: ./FlairBot/
+        container_name: flairbot
+        ports:
+            - '5000'
+        labels:
+            <<: *traefik
+            traefik.backend: flair
+            traefik.frontend.rule: Host:flair.${DOMAIN_NAME}
