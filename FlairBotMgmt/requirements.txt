@@ -1,0 +1,12 @@
+flask
+flask-login
+flask-sqlalchemy
+flask-markdown
+jinja2
+sqlalchemy
+sentry-sdk[flask]
+psycopg2-binary
+werkzeug
+sshtunnel
+datadog
+praw
