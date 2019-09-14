@@ -1,0 +1,226 @@
+{% extends "base.html" %}
+{% block title %}FlairBot Manager - Profile{% endblock %}
+{% block breadCrumbs %}
+    <!--suppress HtmlUnknownTarget -->
+    {% if current_user.admin %}
+        <li class="breadcrumb-item"><a href={{ url_for('main.users') }}>Users</a></li>
+        <li class="breadcrumb-item"><a href="/u/{{ user.username }}">{{ user.username }}</a></li>
+    {% else %}
+        <li class="breadcrumb-item"><a href="/u/{{ user.username }}">Profile</a></li>
+    {% endif %}
+{% endblock %}
+{% block activeItem %}active item{% endblock %}
+{% block content %}
+    <!--suppress ALL -->
+    <style>
+        .tooltip-inner {
+            max-width: 250px;
+        }
+    </style>
+    <style>
+        .btn-primary {
+            display: inline-block;
+            float: left;
+        {#min-height: 54px;#}
+        }
+
+        .btn-success {
+            display: inline-block;
+            float: left;
+        {#vertical-align: top;#} margin-left: 10px;
+        {#min-height: 54px;#}{#border: 1px solid black;#}
+        }
+
+        .btn-danger {
+            display: inline-block;
+            float: left;
+        {#vertical-align: top;#} margin-left: 10px;
+        {#min-height: 54px;#}{#border: 1px solid black;#}
+        }
+
+        .col-lg-3 {
+            position: relative;
+            width: 100%;
+            padding-right: 0px;
+            padding-left: 0px;
+        }
+    </style>
+    <script>
+        function toggleUser(username, enabled) {
+            $.ajax({
+                data: {
+                    username: username,
+                    enabled: enabled
+                },
+                type: 'POST',
+                url: '/api/user/toggle'
+            })
+                .done(function notify(data) {
+                    var elem = document.getElementById(`${data.username}_toggle`);
+                    var icon = document.getElementById(`${data.username}_icon`);
+                    if (data.enabled) {
+                        elem.textContent = "Disable";
+                        elem.style.color = "#E74C3C";
+                        icon.setAttribute("class", "fas fa-check");
+                        icon.style.color = "#00bc8c";
+                        var toastStatus = "enabled";
+                    }
+                    if (!data.enabled) {
+                        elem.textContent = "Enable";
+                        elem.style.color = "#00bc8c";
+                        icon.setAttribute("class", "fas fa-times");
+                        icon.style.color = "#E74C3C";
+                        var toastStatus = "disabled";
+                    }
+                    elem.setAttribute("class", "dropdown-item");
+                    popNotification(`Successfully ${toastStatus} "${data.username}"!`, data.error);
+                });
+        }
+
+        function deleteUser(username) {
+            $('#confirmationModal').modal('hide');
+            $('#delete').prop('disabled', true);
+            $('#delete').html('<div class="spinner-grow spinner-grow-sm text-primary" role="status"></div> Deleting...');
+            $.ajax({
+                data: {
+                    username: username
+                },
+                type: 'POST',
+                url: '/api/user/delete'
+            })
+                .done(function (data) {
+                    console.log(data);
+                    if (data.success) {
+                        popNotification(`Successfully deleted user "${data.useranem}"!`, data.error);
+                        $('#delete').html('Deleted');
+                        $('#delete').prop('class', 'btn btn-danger');
+                    }
+                });
+            event.preventDefault();
+            return false;
+        }
+
+        function saveUser() {
+            let form = document.getElementById('createUserForm')
+            let currentUser = document.getElementById('currentUser');
+            let username = document.getElementById('username');
+            let password = document.getElementById('password');
+            let usernameFeedback = document.getElementById('usernameFeedback');
+            let adminToggle = document.getElementById('adminToggle');
+
+            if (form.checkValidity()) {
+                $('#submit').prop('disabled', true);
+                $('#submit').html('<span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>Saving...');
+                $.ajax({
+                    data: {
+                        user: currentUser.innerText,
+                        username: username.value,
+                        password: password.value,
+                        adminToggle: adminToggle.checked
+                    },
+                    type: 'POST',
+                    url: '/api/user/edit'
+                })
+                    .done(function (data) {
+                        if (data.userExists) {
+                            username.className = "form-control is-invalid";
+                            usernameFeedback.innerText = "That username is taken!"
+                            $('#submit').prop('disabled', false);
+                            $('#submit').prop('class', 'btn btn-primary');
+                            $('#submit').html('Submit Changes');
+                        }
+                        if (!data.userExists) {
+                            $('#submit').html('Updated');
+                            $('#submit').prop('disabled', false);
+                            $('#submit').prop('class', 'btn btn-primary');
+                            $('#submit').html('Submit Changes');
+                        }
+                        popNotification(data.success, data.error);
+                    });
+            }};
+        $(function () {
+                let updatePasswordToggle = document.getElementById('updatePasswordToggle');
+                let passowrdEntry = document.getElementById('passowrdEntry');
+                let passowrdInput = document.getElementById('password');
+                passowrdEntry.hidden = !updatePasswordToggle.checked;
+                passowrdInput.required = updatePasswordToggle.checked;
+
+                $("#updatePasswordToggle").click(function () {
+                    passowrdEntry.hidden = !updatePasswordToggle.checked;
+                    passowrdInput.required = updatePasswordToggle.checked;
+                });
+            $("#createUserForm").submit(function (e) {
+                e.preventDefault();
+            });
+        });
+
+    </script>
+    <script>
+        $(document).ready(function () {
+            $('[data-toggle="tooltip"]').tooltip();
+        });
+    </script>
+    <body>
+    <div class="container">
+        <form id="createUserForm">
+            <div class="form-group">
+                <div class="col-md-5">
+                    <div class="usernameField" id="usernameField">
+                        <div id="currentUser" hidden>{{ user.username }}</div>
+                        <label class="control-label" for="username">Username</label>
+                        <div class="input-group mb-2">
+                            <input class="form-control" id="username" name="username" onkeypress="clearInvalidState(this)" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Username" value="{{ user.username }}" disabled>
+                            <div class="invalid-feedback" id="usernameFeedback">That username is taken!</div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="custom-control custom-switch">
+                            <input type="checkbox" class="custom-control-input" id="updatePasswordToggle" name="updatePassword">
+                            <label class="custom-control-label" for="updatePasswordToggle">Update Passord</label>
+                            <small id="headerHelp" class="form-text text-muted">Check to update password</small>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="passowrdEntry" id="passowrdEntry" hidden>
+                            <label for="password">Password</label>
+                            <div class="input-group mb-2">
+                                <input class="form-control" type="password" id="password" name="password" placeholder="Password">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="custom-control custom-switch">
+                    <input type="checkbox" class="custom-control-input" id="adminToggle" name="adminToggle" {% if user.admin %}checked{% endif %}{% if not current_user.admin %}disabled{% endif %}>
+                    <label class="custom-control-label" for="adminToggle">Admin</label>
+                    <small id="headerHelp" class="form-text text-muted">Allow user to add/edit users</small>
+                </div>
+            </div>
+            <div class="form-group">
+                <button class="btn btn-primary" name="submit_button" onclick="saveUser()" id="submit" value="submit">Submit Changes</button>
+            </div>
+        </form>
+        {% if user.enabled %}
+            <button class="btn btn-danger" id="{{ user.username }}_toggle" onclick="toggleUser('{{ user.username }}', false)" data-target="">Disable</button>
+        {% else %}
+            <button class="btn btn-success" id="{{ user.username }}_toggle" onclick="toggleUser('{{ user.username }}', true)" data-target="">Enable</button>
+        {% endif %}
+        <button class="btn btn-danger" id="delete" data-target="#confirmationModal" data-toggle="modal">Delete User</button>
+        <div class="modal fade" id="confirmationModal" tabindex="-1" role="dialog" aria-labelledby="confirmationModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="confirmationModalLabel">Confirmation</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    </div>
+                    <div class="modal-body" id="delete-modal-body">Are you <strong>sure</strong> you want to delete user "{{ user.username }}"?</div>
+                    <div class="modal-footer" id="delete-modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-danger" onclick="deleteUser( {{ user.id }} )" data-dismiss="modal" id="deleteConfirm">Delete this user</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+{% endblock %}

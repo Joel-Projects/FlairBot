@@ -14,17 +14,19 @@ def login():
 
         user = User.query.filter_by(username=username).first()
 
-        if not user or not check_password_hash(user.password, password):
-            flash('Please check your login details and try again.')
+        if user and check_password_hash(user.password, password) and user.enabled:
+            login_user(user, remember=remember, fresh=False)
+            return redirect(url_for('main.dash'))
+        elif not user.enabled:
+            flash('Your account is disabled.')
             return render_template('login.html', username=username, password=password)
         else:
-            login_user(user, remember=remember, fresh=False)
+            flash('Please check your login details and try again.')
+            return render_template('login.html', username=username, password=password)
 
-            return redirect(url_for('main.dash'))
     return render_template('login.html')
 
 @auth.route('/logout')
-@login_required
 def logout():
     logout_user()
     return redirect(url_for('auth.login'))

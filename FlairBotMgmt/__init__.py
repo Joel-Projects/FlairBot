@@ -1,17 +1,17 @@
-import sentry_sdk, sys, datadog, logging.config, logging, praw, os
+import sentry_sdk, sys, datadog, logging.config, logging, praw, os, inspect
 
 from sentry_sdk.integrations.flask import FlaskIntegration
 from sentry_sdk.integrations.logging import LoggingIntegration
 from datadog_logger import DatadogLogHandler
 
-from flask import Flask
+from flask import Flask, Blueprint
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flaskext.markdown import Markdown
 from flask_debugtoolbar import DebugToolbarExtension
 
 remote = sys.platform == 'darwin'
-debug = os.environ.get('FlairBotDebug', None)
+debug = os.environ.get('FlairBotDebug', None) or True
 
 dsn = 'https://c9c6048b785542d99466b1bc74a3f3cb@sentry.jkpayne.com/20'
 config = {"version": 1, "formatters": {"default": {"format": "%(asctime)s | %(levelname)-8s | %(message)s", "datefmt": "%m/%d/%Y %I:%M:%S %p"}}, "handlers": {"consoleHandler": {"class": "logging.StreamHandler", "level": ('INFO', 'DEBUG')[sys.platform == 'darwin'], "formatter": "default", "stream": "ext://sys.stdout"}}, "loggers": {'FlairBotMgmt': {"level": "INFO", "handlers": ["consoleHandler"]}}}
@@ -27,9 +27,7 @@ if not remote:
 db = SQLAlchemy()
 
 reddit = praw.Reddit('Lil_SpazJoekp')
-
-from .blueprints import *
-from .blueprints import blueprints
+from . import blueprints
 from .models import User
 
 app = Flask(__name__, static_folder='./static')
@@ -59,10 +57,7 @@ login_manager.init_app(app)
 def load_user(user_id):
     return User.query.get(int(user_id))
 
+isBlueprint = lambda blueprint: (isinstance(blueprint, Blueprint))
+blueprints = [blueprint[1] for blueprint in inspect.getmembers(blueprints, isBlueprint)]
 for blueprint in blueprints:
-    try:
-        exec(f'app.register_blueprint({blueprint}.{blueprint})')
-    except AttributeError:
-        pass
-    except Exception as error:
-        log.exception(error)
+    app.register_blueprint(blueprint)

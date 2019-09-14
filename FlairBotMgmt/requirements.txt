@@ -12,3 +12,4 @@ datadog
 datadog_logger
 praw
 flask_debugtoolbar
+gunicorn
