@@ -157,7 +157,7 @@
                         <tbody>
                         {% for reason in removalReasons %}
                             <tr>
-                                <th scope="row">{{ reason.flair_text }}</th>
+                                <th scope="row"><a href="/reasons/{{ reason.id }}">{{ reason.flair_text }}</a></th>
                                 <td>{{ reason.description }}</td>
                                 <td>
                                     {% if reason.comment %}

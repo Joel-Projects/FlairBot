@@ -104,6 +104,14 @@ function toggleReason(id, enabled) {
         });
 }
 
+$(document).ready(function () {
+    $("#reasons").tablesorter({
+        theme: "bootstrap",
+        cancelSelection: false,
+        sortReset: true
+    });
+});
+
 $(function () {
     let form = document.getElementById('createRemovalReasonForm');
     let commentToggle = document.getElementById('commentToggle');
@@ -117,12 +125,6 @@ $(function () {
     commentInput.required = commentToggle.checked;
     banGroup.hidden = !banToggle.checked;
     usernoteGroup.hidden = !usernoteToggle.checked;
-
-    $("#reasons").tablesorter({
-        theme: "bootstrap",
-        cancelSelection: false,
-        sortReset: true
-    });
 
     $('[data-toggle="tooltip"]').tooltip();
 
