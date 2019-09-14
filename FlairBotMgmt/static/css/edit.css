@@ -1,0 +1,30 @@
+.tooltip-inner {
+    max-width: 250px;
+}
+
+.btn-primary {
+    display: inline-block;
+    float: left;
+
+}
+
+.btn-success {
+    display: inline-block;
+    float: left;
+    margin-left: 10px;
+
+}
+
+.btn-danger {
+    display: inline-block;
+    float: left;
+    margin-left: 10px;
+
+}
+
+.col-lg-3 {
+    position: relative;
+    width: 100%;
+    padding-right: 0px;
+    padding-left: 0px;
+}
