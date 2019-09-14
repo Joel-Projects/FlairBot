@@ -57,7 +57,7 @@ def viewRemovalReason(reason_id):
             try:
                 if reason:
                     reason.subreddit = subreddit
-                    reason.flair_text = flair_text
+                    reason.flair_text = flair_text.lower()
                     reason.description = description
                     reason.comment = commentInput
                     reason.lock = lockToggle
@@ -73,7 +73,7 @@ def viewRemovalReason(reason_id):
                     db.session.merge(reason)
                     reasonEditType = 'Updated'
                 else:
-                    reason = RemovalReason(subreddit=subreddit, flair_text=flair_text, description=description, comment=commentInput, lock=lockToggle, lock_comment=commentLockToggle, ban=banToggle, ban_duration=ban_duration, ban_reason=ban_reason, ban_message=ban_message, ban_note=ban_note, usernote=usernoteToggle, usernote_note=usernote_note, usernote_warning_type=usernote_warning_type)
+                    reason = RemovalReason(subreddit=subreddit, flair_text=flair_text.lower(), description=description, comment=commentInput, lock=lockToggle, lock_comment=commentLockToggle, ban=banToggle, ban_duration=ban_duration, ban_reason=ban_reason, ban_message=ban_message, ban_note=ban_note, usernote=usernoteToggle, usernote_note=usernote_note, usernote_warning_type=usernote_warning_type)
                     db.session.add(subreddit)
                     reasonEditType = 'Created'
                 db.session.commit()
