@@ -1,7 +1,6 @@
 import praw
 from flask import Blueprint, render_template, request, session, redirect, url_for, jsonify
 from flask_login import login_required, current_user
-from .. import reddit
 from . import *
 
 subreddits = Blueprint('subreddits', __name__, url_prefix='/subreddits')
@@ -19,23 +18,28 @@ def root():
         reasonCounts[reason.subreddit] += 1
     return render_template('subreddits.html', subreddits=subreddits, reasonCounts=reasonCounts)
 
+
+def validateRedditor(redditor):
+    try:
+        response = requests.get(f"https://reddit.com/user/{redditor}/about.json", headers={'user-agent': 'python:com.jkpayne.redditapps/FlairBot by /u/Lil_SpazJoekp'})
+        while response.status_code not in (200, 403, 404):
+            response = requests.get(f"https://reddit.com/user/{redditor}/about.json", headers={'user-agent': 'python:com.jkpayne.redditapps/FlairBot by /u/Lil_SpazJoekp'})
+        redditor = response.json()['data']['name']
+    except KeyError:
+        return None
+    return redditor
+
 @subreddits.route('/<subreddit>', methods=['GET', 'POST'])
 @login_required
 @validateSubreddit
 def viewSubreddit(subreddit):
-    rsubreddit = reddit.subreddit(subreddit)
-    try:
-        rsubreddit._fetch()
-        subreddit = rsubreddit.display_name
-    except:
-        pass
     session['subreddit'] = subreddit
     notification = {'success': None, 'error': None}
     subreddit = Subreddit.query.filter_by(subreddit=subreddit).first()
     removalReasons = RemovalReason.query.filter_by(subreddit=subreddit.subreddit).all()
     if subreddit:
         if request.method == 'POST':
-            bot_account = request.form['botAccount']
+            bot_account = validateRedditor(request.form['botAccount'])
             webhook_type = request.form['webhookType']
             webhook = request.form['webhook']
             if not webhook:

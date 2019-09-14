@@ -1,32 +1,20 @@
-import praw, prawcore
 from flask import Blueprint, render_template, request, session, redirect, url_for, jsonify, flash
 from flask_login import login_required, current_user
 from werkzeug.security import generate_password_hash
 from . import *
+from .. import *
 
 subreddit = Blueprint('subreddit_api', __name__, url_prefix='/api/subreddit')
 
 @subreddit.route('/add', methods=['POST'])
 @login_required
 @requiresAdmin
-def addSubreddit():
-    subreddit = request.form['subreddit']
-    bot_account = request.form['bot_account']
-    try:
-        sub = reddit.subreddit(subreddit)
-        sub._fetch()
-        subredditName = sub.display_name
-        validSubreddit = True
-    except prawcore.Redirect:
-        subredditName = None
-        validSubreddit = False
-    try:
-        bot_account = reddit.redditor(bot_account)
-        bot_account._fetch()
-        bot_account = bot_account.name
-        validRedditor = True
-    except prawcore.NotFound:
-        validRedditor = False
+@validateSubreddit
+@validateBotAccount
+def addSubreddit(subreddit, bot_account):
+    validSubreddit = bool(subreddit)
+    subredditName = subreddit
+    validRedditor = bool(bot_account)
     webhook_type = request.form['webhook_type']
     webhook = request.form['webhook']
     if not webhook:
@@ -65,8 +53,8 @@ def addSubreddit():
 @login_required
 @requiresAdmin
 @validateSubredditForm
-def editSubreddit(subreddit=None):
-    bot_account = request.form['botAccount']
+@validateBotAccount
+def editSubreddit(subreddit=None, bot_account=None):
     webhook_type = request.form['webhookType']
     webhook = request.form['webhook']
     if not webhook:

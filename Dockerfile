@@ -1,9 +1,9 @@
-#FROM node:lts-alpine as build-stage
-#
-#COPY ./FlairBotMgmt /FlairBotMgmt
-#WORKDIR /FlairBotMgmt/static
-#
-#RUN npm install webpack && npm install extract-text-webpack-plugin && npm install && npm run build
+FROM node:lts-alpine as build-stage
+
+COPY ./FlairBotMgmt /FlairBotMgmt
+WORKDIR /FlairBotMgmt/static
+
+RUN npm install webpack && npm install extract-text-webpack-plugin && npm install && npm run build
 
 
 FROM python:3.7-alpine3.7
@@ -20,7 +20,7 @@ RUN apk add --no-cache postgresql-libs nano bash && \
     pip install -r requirements.txt && \
     apk --purge del .build-deps
 
-#COPY --from=build-stage /FlairBotMgmt/static/dist /static/dist
+COPY --from=build-stage /FlairBotMgmt/static/dist /static/dist
 
 WORKDIR /FlairBot
 EXPOSE 5000

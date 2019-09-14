@@ -12,7 +12,7 @@ def login():
         password = request.form.get('password')
         remember = True if request.form.get('remember') else False
 
-        user = User.query.filter_by(username=username).first()
+        user = User.query.filter_by(username=User.username.ilike(request.form['username'])).first()
 
         if user and check_password_hash(user.password, password) and user.enabled:
             login_user(user, remember=remember, fresh=False)

@@ -1,9 +1,6 @@
 import praw
 from flask import Blueprint, render_template, request, session, redirect, url_for, jsonify
 from flask_login import login_required, current_user
-from werkzeug.security import generate_password_hash
-
-from .. import reddit
 from . import *
 
 users = Blueprint('users', __name__, url_prefix='/u')

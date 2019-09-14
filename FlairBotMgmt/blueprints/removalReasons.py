@@ -1,7 +1,6 @@
 import praw
 from flask import Blueprint, render_template, request, session, redirect, url_for, jsonify
 from flask_login import login_required, current_user
-from .. import reddit
 from . import *
 
 removalReasons = Blueprint('removalReason', __name__, url_prefix='/reasons')

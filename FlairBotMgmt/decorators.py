@@ -1,20 +1,48 @@
-import prawcore, re
+import re, requests
 from functools import wraps
 from flask import session, url_for, redirect, flash, request, abort
 from flask_login import current_user
-
-from . import reddit
 from .models import *
+
+def validateSub(subreddit):
+    try:
+        response = requests.get(f"https://reddit.com/r/{subreddit}/about.json", headers={'user-agent': 'python:com.jkpayne.redditapps/FlairBot by /u/Lil_SpazJoekp'})
+        while response.status_code not in (200, 403):
+            response = requests.get(f"https://reddit.com/r/{subreddit}/about.json", headers={'user-agent': 'python:com.jkpayne.redditapps/FlairBot by /u/Lil_SpazJoekp'})
+        subreddit = response.json()['data']['display_name']
+    except KeyError:
+        return None
+    return subreddit
+
+def validateRedditor(redditor):
+    try:
+        response = requests.get(f"https://reddit.com/user/{redditor}/about.json", headers={'user-agent': 'python:com.jkpayne.redditapps/FlairBot by /u/Lil_SpazJoekp'})
+        while response.status_code not in (200, 403, 404):
+            response = requests.get(f"https://reddit.com/user/{redditor}/about.json", headers={'user-agent': 'python:com.jkpayne.redditapps/FlairBot by /u/Lil_SpazJoekp'})
+        redditor = response.json()['data']['name']
+    except KeyError:
+        return None
+    return redditor
+
+def validateBotAccount(func):
+    @wraps(func)
+    def decorated(*args, **kwargs):
+        if 'bot_account' in request.form:
+            botAccountKey = 'bot_account'
+        else:
+            botAccountKey = 'botAccount'
+        bot_account = validateRedditor(request.form[botAccountKey])
+        kwargs['bot_account'] = bot_account
+        return func(*args, **kwargs)
+    return decorated
 
 def validateSubreddit(func):
     @wraps(func)
     def decorated(*args, **kwargs):
-        try:
-            sub = reddit.subreddit(kwargs['subreddit'])
-            sub._fetch()
-            subreddit = sub.display_name
-        except prawcore.exceptions.Redirect:
-            subreddit = kwargs['subreddit']
+        if 'subreddit' in kwargs:
+            subreddit = validateSub(kwargs['subreddit'])
+        else:
+            subreddit = validateSub(request.form['subreddit'])
         kwargs['subreddit'] = subreddit
         return func(*args, **kwargs)
     return decorated
@@ -23,13 +51,7 @@ def validateSubredditForm(func):
     @wraps(func)
     def decorated(*args, **kwargs):
         if request.form['subreddit'] == session['subreddit']:
-            try:
-                sub = reddit.subreddit(request.form['subreddit'])
-                sub._fetch()
-                subreddit = sub.display_name
-            except prawcore.exceptions.Redirect:
-                subreddit = None
-                flash(f"That subreddit doesn't exist.")
+            subreddit = validateSub(kwargs['subreddit'])
             kwargs['subreddit'] = subreddit
         else:
             abort(409)

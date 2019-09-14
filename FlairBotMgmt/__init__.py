@@ -1,4 +1,4 @@
-import sentry_sdk, sys, datadog, logging.config, logging, praw, os, inspect
+import sentry_sdk, sys, datadog, logging.config, logging, os, inspect
 
 from sentry_sdk.integrations.flask import FlaskIntegration
 from sentry_sdk.integrations.logging import LoggingIntegration
@@ -26,7 +26,7 @@ if not remote:
 
 db = SQLAlchemy()
 
-reddit = praw.Reddit('Lil_SpazJoekp')
+# reddit = praw.Reddit('Lil_SpazJoekp')
 from . import blueprints
 from .models import User
 
