@@ -1,14 +1,16 @@
 import praw
-from flask import Blueprint, render_template
-from flask_login import login_required
+from flask import Blueprint, render_template, redirect
+from flask_login import current_user, login_required
 from . import *
 
 main = Blueprint('main', __name__)
 
 @main.route('/')
-@login_required
 def root():
-    return render_template('dash.html')
+    if current_user.is_authenticated:
+        return render_template('dash.html')
+    else:
+        return redirect('/login')
 
 @main.route('/dash')
 @login_required

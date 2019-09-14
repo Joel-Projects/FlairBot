@@ -18,5 +18,5 @@ RUN apk add --no-cache postgresql-libs nano bash && \
     apk --purge del .build-deps
 
 WORKDIR /FlairBot
-RUN ls
-CMD ["gunicorn", "-b", "0.0.0.0:5001", "FlairBotMgmt:app"]
+EXPOSE 5000
+CMD ["gunicorn", "-b", "0.0.0.0:5000", "FlairBotMgmt:app"]

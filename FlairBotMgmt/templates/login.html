@@ -6,47 +6,7 @@
 
 {% endblock %}
 {% block content %}
-    <style>
-        html, body {
-            height: 100%;
-        }
-        body {
-            display: -ms-flexbox;
-            display: flex;
-            -ms-flex-align: center;
-            align-items: center;
-            padding-top: 40px;
-            padding-bottom: 40px;
-        }
-
-        .form-signin {
-            width: 100%;
-            max-width: 400px;
-            padding: 15px;
-            margin: auto;
-        }
-        .btn {
-            max-width: 270px;
-            margin: auto;
-        }
-        .alert {
-            max-width: 250px;
-            margin: auto;
-        }
-        .form-signin .checkbox {
-            font-weight: 400;
-            vertical-align: 2px;
-        }
-        .form-signin .form-control {
-            position: center;
-            width: 100%;
-            margin: auto;
-            box-sizing: border-box;
-            max-width: 250px;
-            height: auto;
-            font-size: 16px;
-        }
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
     <body class="text-center">
     <form class="form-signin" id="loginform" action="/login" method="post">
         <h1 class="h1 mb-3 font-weight-normal">FlairBot Manager</h1>
