@@ -34,6 +34,8 @@ function toggleSubreddit(subreddit, enabled) {
 }
 
 $(document).ready(function () {
+
+
     $("#subreddits").tablesorter({
         theme: "bootstrap",
         cancelSelection: false,

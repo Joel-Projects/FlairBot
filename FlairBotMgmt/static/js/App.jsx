@@ -57,7 +57,7 @@ export default class App extends React.Component {
                 </div>
                 <div className={"form-group"} id={this.state.nameLower + "Preview"}>
                     <label ref={(input) => this.previewLabel = input}/>
-                    <div ref={(input) => this.textOutput = input} id={this.state.nameLower + 'output'} style={{color: "#495057", backgroundColor: "#fff", backgroundClip: "paddingBox", border: "1px solid #ced4da", borderRadius: ".25rem", paddingRight: "12px", paddingTop: "6px", minHeight: "54px"}}/>
+                    <div ref={(input) => this.textOutput = input} id={this.state.nameLower + 'output'} style={{color: "#495057", backgroundColor: "#fff", backgroundClip: "paddingBox", border: "1px solid #ced4da", borderRadius: ".25rem", paddingLeft: "12px", paddingRight: "12px", paddingTop: "6px", minHeight: "54px"}}/>
                 </div>
             </div>
         )
