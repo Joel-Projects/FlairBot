@@ -22,7 +22,7 @@ function deleteFlair(reason_id, row_id) {
     return false;
 }
 
-function showDeleteModal(flair_text, subreddit, flair_id, row_id) {
+function showDeleteModalFlair(flair_text, subreddit, flair_id, row_id) {
     document.getElementById('delete-modal-body').innerHTML = `Are you <strong>sure</strong> you want to delete the "${flair_text}" flair for /r/${subreddit}?`;
     document.getElementById('delete-modal-footer').innerHTML = `<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button><button type="button" class="btn btn-danger" onclick="deleteFlair(${flair_id}, ${row_id})" data-dismiss="modal" id="deleteConfirm">Delete this flair</button>`;
     $('#confirmationModal').modal('show')
