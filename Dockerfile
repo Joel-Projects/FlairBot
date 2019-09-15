@@ -6,6 +6,7 @@ WORKDIR /FlairBotMgmt/static
 RUN npm install webpack && npm install extract-text-webpack-plugin && npm install && npm run build
 
 
+
 FROM python:3.7-alpine3.7
 
 COPY ./praw.ini /FlairBot/praw.ini

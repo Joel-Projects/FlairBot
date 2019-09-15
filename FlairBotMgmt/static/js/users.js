@@ -103,8 +103,7 @@ $(function () {
                         let usersTable = document.getElementById('users');
                         let row = usersTable.insertRow();
                         let username = row.insertCell();
-                        username.innerHTML = data.user.username;
-                        username.innerHTML = data.user.username;
+                        username.innerHTML = <a href="/u/${data.user.username}">{{user.username}}</a>
                         let admin = row.insertCell();
                         if (data.user.admin) {
                             admin.innerHTML = `<i class="fas fa-check" style="font-size: 28px;color: #00bc8c"></i>`;
@@ -120,15 +119,17 @@ $(function () {
                         let enabled = row.insertCell();
                         enabled.innerHTML = `<i class="fas fa-check" id="${data.user.username}_icon" style="font-size: 28px;color: #00bc8c"></i>`;
                         let edit = row.insertCell();
-                        edit.innerHTML = `<div class="dropdown">
-                                <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    <i class="fas fa-ellipsis-h"></i>
-                                </a>
-                                <div class="dropdown-menu">
-                                    <a class="dropdown-item" href="/u/${data.user.username}">Edit</a>
-                                      <a class="dropdown-item" id="${data.user.username}_toggle" style="color: #E74C3C" onclick="toggleUser('${data.user.username}', false)">Disable</a>
-                                    <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item" onclick="showDeleteModal('${data.user.username}', ${row.rowIndex})" style="color: red">Delete</a>
+                        edit.innerHTML = `
+                            <div class="btn-group" role="group" aria-label="Button group with nested dropdown">
+                                <button type="button" class="btn btn-primary" onclick="location.href='/u/${data.user.username}'">Edit</button>
+                                <div class="btn-group" role="group">
+                                    <button id="btnGroupDrop1" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
+                                    <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                                        <a class="dropdown-item" href="/u/${data.user.username}">Edit</a>
+                                        <a class="dropdown-item" id="${data.user.username}_toggle" style="color: #00bc8c" onclick="toggleUser('${data.user.username}', true)">Enable</a>
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item" onclick="showDeleteModal('${data.user.username}', ${row.rowIndex})" style="color: red">Delete</a>
+                                    </div>
                                 </div>
                             </div>`;
                         $('#userCreate').html('Created');
