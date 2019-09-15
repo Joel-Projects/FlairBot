@@ -116,7 +116,7 @@ $(function () {
                         let updated = row.insertCell();
                         updated.innerHTML = data.user.updated;
                         let updatedby = row.insertCell();
-                        updatedby.innerHTML = data.user.updatedbr;
+                        updatedby.innerHTML = data.user.updatedby;
                         let enabled = row.insertCell();
                         enabled.innerHTML = `<i class="fas fa-check" id="${data.user.username}_icon" style="font-size: 28px;color: #00bc8c"></i>`;
                         let edit = row.insertCell();

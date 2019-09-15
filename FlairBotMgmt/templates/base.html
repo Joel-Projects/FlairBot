@@ -89,9 +89,9 @@
                     <div class="nav-item nav-link">
                     </div>
                     {% if current_user %}
-                        <a class="nav-item nav-link active" href="/u/{{ current_user.username }}">{{ current_user.username }}</a>
+                        <a class="nav-item nav-link" href="/u/{{ current_user.username }}">{{ current_user.username }}</a>
                     {% else %}
-                        <a class="nav-item nav-link active" href="/login">Login</a>
+                        <a class="nav-item nav-link" href="/login">Login</a>
                     {% endif %}
                 </div>
             </div>

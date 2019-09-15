@@ -43,7 +43,7 @@ export default class App extends React.Component {
         this.newHeight = this.textInput.scrollHeight + 2;
         this.textInput.style.minHeight = "54px";
         this.textInput.setAttribute("style", "height:" + this.newHeight + "px");
-        console.log(this.textInput.name = this.state.formName)
+        console.log(this.textInput.style.minHeight)
     }
 
     render() {

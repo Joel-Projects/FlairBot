@@ -156,10 +156,11 @@ $(function () {
                         let subredditsTable = document.getElementById('subreddits');
                         let row = subredditsTable.insertRow();
                         let subredditName = row.insertCell();
-                        subredditName.innerHTML = data.subreddit.subreddit;
+                        subredditName.innerHTML = `<a href="/subreddits/${data.subreddit.subreddit}">${data.subreddit.subreddit}</a>`;
                         let bot_account = row.insertCell();
                         bot_account.innerHTML = data.subreddit.bot_account;
                         let removalReasonCount = row.insertCell();
+                        removalReasonCount.innerHTML = `<a href="/subreddits/${data.subreddit.subreddit}#removalReasons">0</a>`;
                         let webhook_type = row.insertCell();
                         if (data.subreddit.webhook_type) {
                             webhookType = data.subreddit.webhook_type;
@@ -176,15 +177,16 @@ $(function () {
                             enableButtonStatus = `<a class="dropdown-item" id="${data.subreddit.subreddit}_toggle" style="color: #00bc8c" onclick="toggleSubreddit('${data.subreddit.subreddit}', true)">Enable</a>`;
                         }
                         let edit = row.insertCell();
-                        edit.innerHTML = `<div class="dropdown">
-                                <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    <i class="fas fa-ellipsis-h"></i>
-                                </a>
-                                <div class="dropdown-menu">
-                                    <a class="dropdown-item" href="/subreddits/${data.subreddit.subreddit}">Edit</a>
-                                      ${enableButtonStatus}
-                                    <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item" onclick="showDeleteModal('${data.subreddit.subreddit}', ${row.rowIndex})" style="color: red">Delete</a>
+                        edit.innerHTML = `<div class="btn-group" role="group" aria-label="Button group with nested dropdown">
+                                <button type="button" class="btn btn-primary" onclick="location.href='/subreddits/${data.subreddit.subreddit}'">Edit</button>
+                                <div class="btn-group" role="group">
+                                    <button id="btnGroupDrop1" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
+                                    <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                                        <a class="dropdown-item" href="/subreddits/${data.subreddit.subreddit}">Edit</a>
+                                        ${enableButtonStatus}
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item" onclick="showDeleteModal('${data.subreddit.subreddit}', ${row.rowIndex})" style="color: red">Delete</a>
+                                    </div>
                                 </div>
                             </div>`;
                         $('#subredditAdd').html('Added');

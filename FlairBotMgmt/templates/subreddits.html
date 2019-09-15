@@ -43,7 +43,7 @@
                     <tr>
                         <th scope="row"><a href="/subreddits/{{ subreddit.subreddit }}">{{ subreddit.subreddit }}</a></th>
                         <td>{{ subreddit.bot_account }}</td>
-                        <td>{{ reasonCounts[subreddit.subreddit] }}</td>
+                        <td><a href="/subreddits/{{ subreddit.subreddit }}#removalReasons">{% if subreddit.subreddit in reasonCounts %}{{ reasonCounts[subreddit.subreddit] }}{% else %}0{% endif %}</a></td>
                         <td>{{ subreddit.webhook_type }}</td>
                         <td>
                             {% if subreddit.enabled %}

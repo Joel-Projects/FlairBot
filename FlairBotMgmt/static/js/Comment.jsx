@@ -31,6 +31,7 @@ export default class App extends React.Component {
         this.newHeight = this.textInput.scrollHeight + 2;
         this.textInput.style.minHeight = "auto";
         this.textInput.setAttribute("style", `height:${this.newHeight}px`);
+        console.log(this.textInput.style.minHeight)
     }
 
     handleLoad() {
@@ -38,10 +39,10 @@ export default class App extends React.Component {
         this.previewLabel.textContent = this.state.previewName;
         this.textInput.name = this.state.formName;
         this.textOutput.innerHTML = this.generateHtml();
-        this.newHeight = this.textInput.scrollHeight + 2;
-        this.textInput.style.minHeight = "54px";
-        this.textInput.setAttribute("style", `height:${this.newHeight}px`);
 
+        this.textInput.style.minHeight = "54px";
+
+        console.log(this.textInput.style.minHeight)
     }
 
     generateHtml() {

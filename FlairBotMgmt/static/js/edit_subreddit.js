@@ -182,40 +182,25 @@ function addRow(data) {
     let options = row.insertCell();
     if (data.reason.enabled) {
         enabled.innerHTML = `<i class="fas fa-check" id="${data.reason.id}_enabled_icon" style="font-size: 28px;color: #00bc8c"></i>`;
-        let enableToggle = `<a class="dropdown-item" id="${data.reason.id}_toggle" style="color: #E74C3C" onclick="toggleReason('${data.reason.id}', false)">Disable</a>`;
-        options.innerHTML = `<div class="dropdown"><a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fas fa-ellipsis-h"></i></a><div class="dropdown-menu"><a class="dropdown-item" href="/reasons/${data.reason.id}">Edit</a>${enableToggle}<div class="dropdown-divider"></div> <a class="dropdown-item" onclick="showDeleteModalFlair('${data.reason.flair_text}', '${data.reason.subreddit}', ${data.reason.id}, ${row.rowIndex})" style="color: red">Delete</a></div></div>`
+        enableToggle = `<a class="dropdown-item" id="${data.reason.id}_toggle" style="color: #E74C3C" onclick="toggleReason('${data.reason.id}', false)">Disable</a>`;
     } else {
-        enabled.innerHTML = `<i class="fas fa-times" id="${data.reason.id}_enabled_icon" style="font-size: 28px; color: #E74C3C"> </i>`;
-        let enableToggle = `<a class="dropdown-item" id="${data.reason.id}_toggle" style="color: #00bc8c" onclick="toggleReason('${data.reason.id}', false)">Enable</a>`;
-        options.innerHTML = `<div class="dropdown"><a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fas fa-ellipsis-h"></i></a><div class="dropdown-menu"><a class="dropdown-item" href="/reasons/${data.reason.id}">Edit</a>${enableToggle}<div class="dropdown-divider"></div> <a class="dropdown-item" onclick="showDeleteModalFlair('${data.reason.flair_text}', '${data.reason.subreddit}', ${data.reason.id}, ${row.rowIndex})" style="color: red">Delete</a></div></div>`
+        enabled.innerHTML = `<i class="fas fa-times" id="${data.reason.id}_enabled_icon" style="font-size: 28px; color: #E74C3C"></i>`;
+        enableToggle = `<a class="dropdown-item" id="${data.reason.id}_toggle" style="color: #00bc8c" onclick="toggleReason('${data.reason.id}', false)">Enable</a>`;
     }
+    options.innerHTML = `
+                        <div class="btn-group" role="group" aria-label="Button group with nested dropdown">
+                            <button type="button" class="btn btn-primary" onclick="location.href='/reasons/${data.reason.id}'">Edit</button>
+                            <div class="btn-group" role="group">
+                                <button id="btnGroupDrop1" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
+                                <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                                    <a class="dropdown-item" href="/reasons/${data.reason.id}">Edit</a>
+                                    ${enableToggle}
+                                    <div class="dropdown-divider"></div>
+                                    <a class="dropdown-item" onclick="showDeleteModalFlair('${data.reason.id}', ${row.rowIndex})" style="color: red">Delete</a>
+                                </div>
+                            </div>
+                        </div>`;
 }
-
-// $(document).ready(() => {
-//     let url = location.href.replace(/\/$/, "");
-//
-//     if (location.hash) {
-//         const hash = url.split("#");
-//         $('#subredditTabs a[href="#' + hash[1] + '"]').tab("show");
-//         url = location.href.replace(/\/#/, "#");
-//         history.replaceState(null, null, url);
-//         setTimeout(() => {
-//             $(window).scrollTop(0);
-//         }, 400);
-//     }
-//
-//     $('a[data-toggle="tab"]').on("click", function () {
-//         let newUrl;
-//         const hash = $(this).attr("href");
-//         if (hash == "#settings") {
-//             newUrl = url.split("#")[0];
-//         } else {
-//             newUrl = url.split("#")[0] + hash;
-//         }
-//         newUrl += "/";
-//         history.replaceState(null, null, newUrl);
-//     });
-// });
 $(function () {
     let headerToggle = document.getElementById('headerToggle');
     let footerToggle = document.getElementById('footerToggle');

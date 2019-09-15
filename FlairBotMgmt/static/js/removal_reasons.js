@@ -14,7 +14,7 @@ function deleteFlair(reason_id, row_id) {
         .done(function (data) {
             console.log(data);
             if (data.success) {
-                popNotification('Successfully deleted flair "' + data.flair_text + '" for r/' + data.subreddit, data.error);
+                popNotification(`Successfully deleted flair "${data.flair_text}" for r/${data.subreddit}`, data.error);
                 document.getElementById("reasons").deleteRow(row_id);
             }
         });
@@ -23,8 +23,8 @@ function deleteFlair(reason_id, row_id) {
 }
 
 function showDeleteModal(flair_text, subreddit, flair_id, row_id) {
-    document.getElementById('delete-modal-body').innerHTML = "Are you <strong>sure</strong> you want to delete the \"" + flair_text + "\" flair for /r/" + subreddit + "?";
-    document.getElementById('delete-modal-footer').innerHTML = '<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button><button type="button" class="btn btn-danger" onclick="deleteFlair(' + flair_id + ", " + row_id + ')" data-dismiss="modal" id="deleteConfirm">Delete this flair</button>';
+    document.getElementById('delete-modal-body').innerHTML = `Are you <strong>sure</strong> you want to delete the "${flair_text}" flair for /r/${subreddit}?`;
+    document.getElementById('delete-modal-footer').innerHTML = `<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button><button type="button" class="btn btn-danger" onclick="deleteFlair(${flair_id}, ${row_id})" data-dismiss="modal" id="deleteConfirm">Delete this flair</button>`;
     $('#confirmationModal').modal('show')
 }
 
@@ -48,7 +48,7 @@ function resetForm(preserveSubreddit) {
     let enableOnAdd = document.getElementById('enableOnAdd');
     let banGroup = document.getElementById('banGroup');
     let usernoteGroup = document.getElementById('usernoteGroup');
-    let commentEntry = document.getElementById('headerEntry');
+    let commentEntry = document.getElementById('commentEntry');
     if (!preserveSubreddit) {
         subreddit.value = ""
     }
@@ -119,7 +119,7 @@ $(function () {
     let usernoteToggle = document.getElementById('usernoteToggle');
     let banGroup = document.getElementById('banGroup');
     let usernoteGroup = document.getElementById('usernoteGroup');
-    let commentEntry = document.getElementById('headerEntry');
+    let commentEntry = document.getElementById('commentEntry');
     let commentInput = document.getElementById('commentinput');
     commentEntry.hidden = !commentToggle.checked;
     commentInput.required = commentToggle.checked;
@@ -127,6 +127,69 @@ $(function () {
     usernoteGroup.hidden = !usernoteToggle.checked;
 
     $('[data-toggle="tooltip"]').tooltip();
+
+    function createRow(data) {
+        let reasonsTable = document.getElementById('reasons');
+        let row = reasonsTable.insertRow();
+        let flair_text = row.insertCell();
+        flair_text.innerHTML = `<a href="/reasons/${data.reason.id}">${data.reason.flair_text}</a>`;
+        let description = row.insertCell();
+        description.innerHTML = data.reason.description;
+        let subreddit = row.insertCell();
+        subreddit.innerHTML = `<a href="/subreddits/${data.reason.subreddit}">${data.reason.subreddit}</a>`;
+        let comment = row.insertCell();
+        if (data.reason.comment) {
+            comment.innerHTML = `<i class="fas fa-check" id="${data.reason.id}_comment_icon" style="font-size: 28px;color: #00bc8c"></i>`
+        } else {
+            comment.innerHTML = `<i class="fas fa-times" id="${data.reason.id}_comment_icon" style="font-size: 28px; color: #E74C3C"></i>`
+        }
+        let lock = row.insertCell();
+        if (data.reason.lock) {
+            lock.innerHTML = `<i class="fas fa-check" id="${data.reason.id}_lock_icon" style="font-size: 28px;color: #00bc8c"></i>`
+        } else {
+            lock.innerHTML = `<i class="fas fa-times" id="${data.reason.id}_lock_icon" style="font-size: 28px; color: #E74C3C"></i>`
+        }
+        let lock_comment = row.insertCell();
+        if (data.reason.lock_comment) {
+            lock_comment.innerHTML = `<i class="fas fa-check" id="${data.reason.id}_lock_comment_icon" style="font-size: 28px;color: #00bc8c"></i>`
+        } else {
+            lock_comment.innerHTML = `<i class="fas fa-times" id="${data.reason.id}_lock_comment_icon" style="font-size: 28px; color: #E74C3C"></i>`
+        }
+        let ban = row.insertCell();
+        if (data.reason.ban) {
+            ban.innerHTML = `<i class="fas fa-check" id="${data.reason.id}_ban_icon" style="font-size: 28px;color: #00bc8c"></i>`
+        } else {
+            ban.innerHTML = `<i class="fas fa-times" id="${data.reason.id}_ban_icon" style="font-size: 28px; color: #E74C3C"></i>`
+        }
+        let usernote = row.insertCell();
+        if (data.reason.usernote) {
+            usernote.innerHTML = `<i class="fas fa-check" id="${data.reason.id}_usernote_icon" style="font-size: 28px;color: #00bc8c"></i>`
+        } else {
+            usernote.innerHTML = `<i class="fas fa-times" id="${data.reason.id}_usernote_icon" style="font-size: 28px; color: #E74C3C"></i>`
+        }
+        let enabled = row.insertCell();
+        let options = row.insertCell();
+        if (data.reason.enabled) {
+            enabled.innerHTML = `<i class="fas fa-check" id="${data.reason.id}_enabled_icon" style="font-size: 28px;color: #00bc8c"></i>`;
+            enableToggle = `<a class="dropdown-item" id="${data.reason.id}_toggle" style="color: #E74C3C" onclick="toggleReason('${data.reason.id}', false)">Disable</a>`;
+        } else {
+            enabled.innerHTML = `<i class="fas fa-times" id="${data.reason.id}_enabled_icon" style="font-size: 28px; color: #E74C3C"></i>`;
+            enableToggle = `<a class="dropdown-item" id="${data.reason.id}_toggle" style="color: #00bc8c" onclick="toggleReason('${data.reason.id}', false)">Enable</a>`;
+        }
+        options.innerHTML = `
+                        <div class="btn-group" role="group" aria-label="Button group with nested dropdown">
+                            <button type="button" class="btn btn-primary" onclick="location.href='/reasons/${data.reason.id}'">Edit</button>
+                            <div class="btn-group" role="group">
+                                <button id="btnGroupDrop1" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
+                                <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                                    <a class="dropdown-item" href="/reasons/${data.reason.id}">Edit</a>
+                                    ${enableToggle}
+                                    <div class="dropdown-divider"></div>
+                                    <a class="dropdown-item" onclick="showDeleteModalFlair('${data.reason.id}', ${row.rowIndex})" style="color: red">Delete</a>
+                                </div>
+                            </div>
+                        </div>`;
+    }
 
     $('#reasonCreate').click(function () {
         let subreddit = document.getElementById('subreddit');
@@ -180,55 +243,7 @@ $(function () {
                         $('#reasonCreate').prop('class', 'btn btn-primary');
                         $('#reasonCreate').html('Create');
                     } else {
-                        let reasonsTable = document.getElementById('reasons');
-                        let row = reasonsTable.insertRow();
-                        let flair_text = row.insertCell();
-                        flair_text.innerHTML = data.reason.flair_text;
-                        let description = row.insertCell();
-                        description.innerHTML = data.reason.description;
-                        let subreddit = row.insertCell();
-                        subreddit.innerHTML = data.reason.subreddit;
-                        let comment = row.insertCell();
-                        if (data.reason.comment) {
-                            comment.innerHTML = '<i class="fas fa-check" id="' + data.reason.id + '_comment_icon" style="font-size: 28px;color: #00bc8c"></i>'
-                        } else {
-                            comment.innerHTML = '<i class="fas fa-times" id="' + data.reason.id + '_comment_icon" style="font-size: 28px; color: #E74C3C"></i>'
-                        }
-                        let lock = row.insertCell();
-                        if (data.reason.lock) {
-                            lock.innerHTML = '<i class="fas fa-check" id="' + data.reason.id + '_lock_icon" style="font-size: 28px;color: #00bc8c"></i>'
-                        } else {
-                            lock.innerHTML = '<i class="fas fa-times" id="' + data.reason.id + '_lock_icon" style="font-size: 28px; color: #E74C3C"></i>'
-                        }
-                        let lock_comment = row.insertCell();
-                        if (data.reason.lock_comment) {
-                            lock_comment.innerHTML = '<i class="fas fa-check" id="' + data.reason.id + '_lock_comment_icon" style="font-size: 28px;color: #00bc8c"></i>'
-                        } else {
-                            lock_comment.innerHTML = '<i class="fas fa-times" id="' + data.reason.id + '_lock_comment_icon" style="font-size: 28px; color: #E74C3C"></i>'
-                        }
-                        let ban = row.insertCell();
-                        if (data.reason.ban) {
-                            ban.innerHTML = '<i class="fas fa-check" id="' + data.reason.id + '_ban_icon" style="font-size: 28px;color: #00bc8c"></i>'
-                        } else {
-                            ban.innerHTML = '<i class="fas fa-times" id="' + data.reason.id + '_ban_icon" style="font-size: 28px; color: #E74C3C"></i>'
-                        }
-                        let usernote = row.insertCell();
-                        if (data.reason.usernote) {
-                            usernote.innerHTML = '<i class="fas fa-check" id="' + data.reason.id + '_usernote_icon" style="font-size: 28px;color: #00bc8c"></i>'
-                        } else {
-                            usernote.innerHTML = '<i class="fas fa-times" id="' + data.reason.id + '_usernote_icon" style="font-size: 28px; color: #E74C3C"></i>'
-                        }
-                        let enabled = row.insertCell();
-                        let options = row.insertCell();
-                        if (data.reason.enabled) {
-                            enabled.innerHTML = '<i class="fas fa-check" id="' + data.reason.id + '_enabled_icon" style="font-size: 28px;color: #00bc8c"></i>';
-                            let enableToggle = '<a class="dropdown-item" id="' + data.reason.id + '_toggle" style="color: #E74C3C" onclick="toggleReason(\'' + data.reason.id + '\', false)">Disable</a>'
-                            options.innerHTML = '<div class="dropdown"><a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fas fa-ellipsis-h"></i></a><div class="dropdown-menu"><a class="dropdown-item" href="/reasons/' + data.reason.id + '">Edit</a>' + enableToggle + '<div class="dropdown-divider"></div> <a class="dropdown-item" onclick="showDeleteModal(\'' + data.reason.flair_text + '\', \'' + data.reason.subreddit + '\', ' + data.reason.id + ', ' + row.rowIndex + ')" style="color: red">Delete</a></div></div>'
-                        } else {
-                            enabled.innerHTML = '<i class="fas fa-times" id="' + data.reason.id + '_enabled_icon" style="font-size: 28px; color: #E74C3C"> </i>';
-                            let enableToggle = '<a class="dropdown-item" id="' + data.reason.id + '_toggle" style="color: #00bc8c" onclick="toggleReason(\'' + data.reason.id + '\', false)">Enable</a>'
-                            options.innerHTML = '<div class="dropdown"><a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fas fa-ellipsis-h"></i></a><div class="dropdown-menu"><a class="dropdown-item" href="/reasons/' + data.reason.id + '">Edit</a>' + enableToggle + '<div class="dropdown-divider"></div> <a class="dropdown-item" onclick="showDeleteModal(\'' + data.reason.flair_text + '\', \'' + data.reason.subreddit + '\', ' + data.reason.id + ', ' + row.rowIndex + ')" style="color: red">Delete</a></div></div>'
-                        }
+                        createRow(data);
                         $('#reasonCreate').html('Created');
                         $('#newSubredditModal').modal('hide');
                         $('#reasonCreate').prop('disabled', false);
@@ -288,74 +303,19 @@ $(function () {
             })
                 .done(function (data) {
                     console.log(data);
-                    if (data.reasonExists) {
-                        flair_text.className = "form-control is-invalid";
-                        flair_textFeedback.innerText = "This flair already exists for this subreddit!"
-                        $('#reasonCreateNew').prop('disabled', false);
-                        $('#reasonCreateNew').prop('class', 'btn btn-primary');
-                        $('#reasonCreateNew').html('Create');
-                    } else {
-                        let reasonsTable = document.getElementById('reasons');
-                        let row = reasonsTable.insertRow();
-                        let flair_text = row.insertCell();
-                        flair_text.innerHTML = data.reason.flair_text;
-                        let description = row.insertCell();
-                        description.innerHTML = data.reason.description;
-                        let subreddit = row.insertCell();
-                        subreddit.innerHTML = data.reason.subreddit;
-                        let comment = row.insertCell();
-                        if (data.reason.comment) {
-                            comment.innerHTML = '<i class="fas fa-check" id="' + data.reason.id + '_comment_icon" style="font-size: 28px;color: #00bc8c"></i>'
-                        } else {
-                            comment.innerHTML = '<i class="fas fa-times" id="' + data.reason.id + '_comment_icon" style="font-size: 28px; color: #E74C3C"></i>'
-                        }
-                        let lock = row.insertCell();
-                        if (data.reason.lock) {
-                            lock.innerHTML = '<i class="fas fa-check" id="' + data.reason.id + '_lock_icon" style="font-size: 28px;color: #00bc8c"></i>'
-                        } else {
-                            lock.innerHTML = '<i class="fas fa-times" id="' + data.reason.id + '_lock_icon" style="font-size: 28px; color: #E74C3C"></i>'
-                        }
-                        let lock_comment = row.insertCell();
-                        if (data.reason.lock_comment) {
-                            lock_comment.innerHTML = '<i class="fas fa-check" id="' + data.reason.id + '_lock_comment_icon" style="font-size: 28px;color: #00bc8c"></i>'
-                        } else {
-                            lock_comment.innerHTML = '<i class="fas fa-times" id="' + data.reason.id + '_lock_comment_icon" style="font-size: 28px; color: #E74C3C"></i>'
-                        }
-                        let ban = row.insertCell();
-                        if (data.reason.ban) {
-                            ban.innerHTML = '<i class="fas fa-check" id="' + data.reason.id + '_ban_icon" style="font-size: 28px;color: #00bc8c"></i>'
-                        } else {
-                            ban.innerHTML = '<i class="fas fa-times" id="' + data.reason.id + '_ban_icon" style="font-size: 28px; color: #E74C3C"></i>'
-                        }
-                        let usernote = row.insertCell();
-                        if (data.reason.usernote) {
-                            usernote.innerHTML = '<i class="fas fa-check" id="' + data.reason.id + '_usernote_icon" style="font-size: 28px;color: #00bc8c"></i>'
-                        } else {
-                            usernote.innerHTML = '<i class="fas fa-times" id="' + data.reason.id + '_usernote_icon" style="font-size: 28px; color: #E74C3C"></i>'
-                        }
-                        let enabled = row.insertCell();
-                        let options = row.insertCell();
-                        if (data.reason.enabled) {
-                            enabled.innerHTML = '<i class="fas fa-check" id="' + data.reason.id + '_enabled_icon" style="font-size: 28px;color: #00bc8c"></i>';
-                            let enableToggle = '<a class="dropdown-item" id="' + data.reason.id + '_toggle" style="color: #E74C3C" onclick="toggleReason(\'' + data.reason.id + '\', false)">Disable</a>'
-                            options.innerHTML = '<div class="dropdown"><a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fas fa-ellipsis-h"></i></a><div class="dropdown-menu"><a class="dropdown-item" href="/reasons/' + data.reason.id + '">Edit</a>' + enableToggle + '<div class="dropdown-divider"></div> <a class="dropdown-item" onclick="showDeleteModal(\'' + data.reason.id + '\', ' + row.rowIndex + ')" style="color: red">Delete</a></div></div>'
-                        } else {
-                            enabled.innerHTML = '<i class="fas fa-times" id="' + data.reason.id + '_enabled_icon" style="font-size: 28px; color: #E74C3C"> </i>';
-                            let enableToggle = '<a class="dropdown-item" id="' + data.reason.id + '_toggle" style="color: #00bc8c" onclick="toggleReason(\'' + data.reason.id + '\', false)">Enable</a>'
-                            options.innerHTML = '<div class="dropdown"><a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fas fa-ellipsis-h"></i></a><div class="dropdown-menu"><a class="dropdown-item" href="/reasons/' + data.reason.id + '">Edit</a>' + enableToggle + '<div class="dropdown-divider"></div> <a class="dropdown-item" onclick="showDeleteModal(\'' + data.reason.id + '\', ' + row.rowIndex + ')" style="color: red">Delete</a></div></div>'
-                        }
-                        $('#reasonCreateNew').html('Created');
-                        $('#reasonCreateNew').prop('disabled', false);
-                        $('#reasonCreateNew').prop('class', 'btn btn-primary');
-                        $('#reasonCreateNew').html('Create and New');
-                        resetForm(true);
-                        event.preventDefault();
-                        return false;
-                        popNotification(data.success, data.error);
-                    }
-                });
+                    createRow(data);
+                    $('#reasonCreateNew').html('Created');
+                    $('#reasonCreateNew').prop('disabled', false);
+                    $('#reasonCreateNew').prop('class', 'btn btn-primary');
+                    $('#reasonCreateNew').html('Create and New');
+                    resetForm(true);
+                    event.preventDefault();
+                    return false;
+                    popNotification(data.success, data.error);
+                })
         }
     });
+
 
     $("#commentToggle").click(function () {
         commentEntry.hidden = !commentToggle.checked;

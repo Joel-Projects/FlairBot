@@ -2,8 +2,10 @@
 {% block title %}FlairBot Manager - Removal Reasons{% endblock %}
 {% block breadCrumbs %}
     <!--suppress HtmlUnknownTarget -->
-    <li class="breadcrumb-item"><a href={{ url_for('removalReason.root') }}>Reasons</a></li>
-    <li class="breadcrumb-item"><a href="/reasons/{{ removalReason.id }}">{{ removalReason.subreddit }} :: {{ removalReason.flair_text }}</a></li>
+    <li class="breadcrumb-item"><a href={{ url_for('subreddits.root') }}>Subreddits</a></li>
+    <li class="breadcrumb-item"><a href="/subreddits/{{ removalReason.subreddit }}">{{ removalReason.subreddit }}</a></li>
+    <li class="breadcrumb-item"><a href="/subreddits/{{ removalReason.subreddit }}#removalReasons">Removal Reasons</a></li>
+    <li class="breadcrumb-item">{{ removalReason.flair_text }}</li>
 {% endblock %}
 {% block activeItem %}active item{% endblock %}
 {% block content %}
