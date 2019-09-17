@@ -32,7 +32,7 @@
                         <span class="d-inline-block" style="opacity: 0.6" tabindex="0" data-toggle="tooltip"
                               title="Indicates if the bot is running or not">
                             <i class="far fa-question-circle"></i></span></sup></th>
-                    <th scope="col">Edit<sup>
+                    <th scope="col" data-sorter="false">Edit<sup>
                         <span class="d-inline-block" style="opacity: 0.6" tabindex="0" data-toggle="tooltip"
                               title="Edit subreddit settings">
                             <i class="far fa-question-circle"></i></span></sup></th>
@@ -60,9 +60,9 @@
                                     <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
                                         <a class="dropdown-item" href="/subreddits/{{ subreddit.subreddit }}">Edit</a>
                                         {% if subreddit.enabled %}
-                                        <a class="dropdown-item" id="{{ subreddit.subreddit }}_toggle" style="color: #E74C3C" onclick="toggleSubreddit('{{ subreddit.subreddit }}', false)">Disable</a>
+                                            <a class="dropdown-item" id="{{ subreddit.subreddit }}_toggle" style="color: #E74C3C" onclick="toggleSubreddit('{{ subreddit.subreddit }}', false)">Disable</a>
                                         {% else %}
-                                        <a class="dropdown-item" id="{{ subreddit.subreddit }}_toggle" style="color: #00bc8c" onclick="toggleSubreddit('{{ subreddit.subreddit }}', true)">Enable</a>
+                                            <a class="dropdown-item" id="{{ subreddit.subreddit }}_toggle" style="color: #00bc8c" onclick="toggleSubreddit('{{ subreddit.subreddit }}', true)">Enable</a>
                                         {% endif %}
                                         <div class="dropdown-divider"></div>
                                         <a class="dropdown-item" onclick="showDeleteModal('{{ subreddit.subreddit }}', {{ loop.index }})" style="color: red">Delete</a>
@@ -75,7 +75,7 @@
                 </tbody>
             </table>
             <button class="btn btn-primary" id="addSubreddit" data-toggle="modal" data-target="#newSubredditModal">Add Subreddit</button>
-            <div class="modal fade" id="newSubredditModal" tabindex="-1" role="dialog" aria-labelledby="newSubredditModalLabel" aria-hidden="true">
+            <div class="modal fade" id="newSubredditModal" role="dialog" aria-labelledby="newSubredditModalLabel" aria-hidden="true">
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
@@ -92,7 +92,7 @@
                                                 <div class="input-group-prepend" id="subredditPrepend">
                                                     <span class="input-group-text">/r/</span>
                                                 </div>
-                                                <input class="form-control" id="subreddit" name="subreddit" onkeypress="clearInvalidState(this)" placeholder="Subreddit" required>
+                                                <input class="form-control" autofocus id="subreddit" name="subreddit" onkeypress="clearInvalidState(this)" placeholder="Subreddit" required>
                                                 <div class="invalid-feedback" id="subredditFeedback">That subreddit doesn't exist!</div>
                                             </div>
                                         </div>
@@ -129,14 +129,14 @@
                                     <div class="form-group">
                                         <div class="custom-control custom-switch">
                                             <input type="checkbox" class="custom-control-input" id="headerToggle" name="headerToggle">
-                                            <label class="custom-control-label" for="headerToggle">Header</label>
+                                            <label class="custom-control-label" tabindex="0" for="headerToggle">Header</label>
                                             <small id="headerHelp" class="form-text text-muted">Enable header for removal comments</small>
                                         </div>
                                     </div>
                                     <div class="form-group">
                                         <div class="custom-control custom-switch">
                                             <input type="checkbox" class="custom-control-input" id="footerToggle" name="footerToggle">
-                                            <label class="custom-control-label" for="footerToggle">Footer</label>
+                                            <label class="custom-control-label" tabindex="0" for="footerToggle">Footer</label>
                                             <small id="footerHelp" class="form-text text-muted">Enable footer for removal comments</small>
                                         </div>
                                     </div>
@@ -145,7 +145,7 @@
                                     <div class="modal-footer">
                                         <div class="custom-control custom-switch">
                                             <input type="checkbox" class="custom-control-input" id="enableOnAdd" name="headerToggle">
-                                            <label class="custom-control-label" for="enableOnAdd">Enable</label>
+                                            <label class="custom-control-label" tabindex="0" for="enableOnAdd">Enable</label>
                                             <small id="enableOnAddHelp" class="form-text text-muted">Enable FlairBot on add</small>
                                         </div>
                                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>

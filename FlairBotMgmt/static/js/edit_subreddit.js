@@ -1,12 +1,3 @@
-window.addEventListener('keydown', function (e) {
-    if (e.keyIdentifier == 'U+000A' || e.keyIdentifier == 'Enter' || e.keyCode == 13) {
-        if (e.target.nodeName == 'INPUT' && e.target.type == 'textarea') {
-            e.preventDefault();
-            return false;
-        }
-    }
-}, true);
-
 function toggleReason(id, enabled) {
     $.ajax({
         data: {
@@ -97,55 +88,56 @@ function showDeleteModalFlair(flair_text, subreddit, flair_id, row_id) {
 }
 
 function resetForm(preserveSubreddit) {
-    let subreddit = document.getElementById('subreddit');
+    // let subreddit = document.getElementById('subreddit');
     let flair_text = document.getElementById('flair_text');
-    let description = document.getElementById('description');
-    let lockToggle = document.getElementById('lockToggle');
-    let commentLockToggle = document.getElementById('commentLockToggle');
+    // let description = document.getElementById('description');
+    // let lockToggle = document.getElementById('lockToggle');
+    // let commentLockToggle = document.getElementById('commentLockToggle');
     let banToggle = document.getElementById('banToggle');
-    let ban_duration = document.getElementById('ban_duration');
-    let ban_reason = document.getElementById('ban_reason');
-    let ban_message = document.getElementById('ban_message');
-    let ban_note = document.getElementById('ban_note');
+    // let ban_duration = document.getElementById('ban_duration');
+    // let ban_reason = document.getElementById('ban_reason');
+    // let ban_message = document.getElementById('ban_message');
+    // let ban_note = document.getElementById('ban_note');
     let usernoteToggle = document.getElementById('usernoteToggle');
-    let usernote_note = document.getElementById('usernote_note');
-    let usernote_warning_type = document.getElementById('usernote_warning_type');
+    // let usernote_note = document.getElementById('usernote_note');
+    // let usernote_warning_type = document.getElementById('usernote_warning_type');
     let commentToggle = document.getElementById('commentToggle');
-    let commentInput = document.getElementById('commentinput');
-    let commentOutput = document.getElementById('commentoutput');
-    let enableOnAdd = document.getElementById('enableOnAdd');
-    let banGroup = document.getElementById('banGroup');
-    let usernoteGroup = document.getElementById('usernoteGroup');
-    let commentEntry = document.getElementById('headerEntry');
-    if (!preserveSubreddit) {
-        subreddit.value = ""
-    }
-    flair_text.value = null;
-    description.value = null;
-    lockToggle.checked = false;
-    commentLockToggle.checked = false;
-    banToggle.checked = false;
-    ban_duration.value = 0;
-    ban_reason.value = null;
-    ban_message.value = null;
-    ban_note.value = null;
-    usernoteToggle.checked = false;
-    usernote_note.value = null;
-    usernote_warning_type.value = null;
-    commentToggle.checked = false;
-    commentInput.value = null;
-    commentOutput.value = null;
-    enableOnAdd.checked = true;
+    // let commentInput = document.getElementById('commentinput');
+    // let commentOutput = document.getElementById('commentoutput');
+    // let enableOnAdd = document.getElementById('enableOnAdd');
+    // let banGroup = document.getElementById('banGroup');
+    // let usernoteGroup = document.getElementById('usernoteGroup');
+    // let commentEntry = document.getElementById('commentEntry');
+    // if (!preserveSubreddit) {
+    //     subreddit.value = ""
+    // }
+    // flair_text.value = null;
+    // description.value = null;
+    // lockToggle.checked = false;
+    // commentLockToggle.checked = false;
+    // banToggle.checked = false;
+    // ban_duration.value = 0;
+    // ban_reason.value = null;
+    // ban_message.value = null;
+    // ban_note.value = null;
+    // usernoteToggle.checked = false;
+    // usernote_note.value = null;
+    // usernote_warning_type.value = null;
+    // commentToggle.checked = false;
+    // commentInput.value = null;
+    // commentOutput.value = null;
+    document.getElementById('createRemovalReasonForm').reset()
     commentEntry.hidden = !commentToggle.checked;
     banGroup.hidden = !banToggle.checked;
     usernoteGroup.hidden = !usernoteToggle.checked;
+    flair_text.focus()
 }
 
 function addRow(data) {
     let reasonsTable = document.getElementById('reasons');
     let row = reasonsTable.insertRow();
     let flair_text = row.insertCell();
-    flair_text.innerHTML = data.reason.flair_text;
+    flair_text.innerHTML = `<a href="/reasons/${data.reason.id}">${data.reason.flair_text}</a>`;
     let description = row.insertCell();
     description.innerHTML = data.reason.description;
     let comment = row.insertCell();
@@ -201,6 +193,7 @@ function addRow(data) {
                             </div>
                         </div>`;
 }
+
 $(function () {
     let headerToggle = document.getElementById('headerToggle');
     let footerToggle = document.getElementById('footerToggle');
@@ -246,16 +239,19 @@ $(function () {
         webhookurlLabel.hidden = (webhookType.value == "None");
         webhookurl.hidden = (webhookType.value == "None");
     });
+
     $("#customWebhookType").change(function () {
         webhookType.value = 'custom'
         customWebhookType.hidden = false;
         customWebhookType.required = true;
         customWebhookLabel.hidden = false;
     });
+
     $("#headerToggle").click(function () {
         headerEntry.hidden = !headerToggle.checked;
         headerEntry.required = headerToggle.checked;
     });
+
     $("#footerToggle").click(function () {
         footerEntry.hidden = !footerToggle.checked;
         footerEntry.required = footerToggle.checked;
@@ -267,6 +263,12 @@ $(function () {
         sortReset: true
     });
 
+    // $(document).on("keyup", '[data-toggle="buttons"] input[type="checkbox"]', function (e) {
+    //     if (e.key == " ") {
+    //         e.preventDefault(); // Prevent the spacebar from toggling and firing the click event
+    //         $(this).closest('[data-toggle="buttons"]').button("toggle"); // Let Bootstrap toggle
+    //     }
+    // });
 
     $('#reasonCreate').click(function () {
         let subreddit = document.getElementById('subreddit');
@@ -328,8 +330,8 @@ $(function () {
                         $('#reasonCreate').html('Create');
                         resetForm(false);
                         event.preventDefault();
-                        return false;
                         popNotification(data.success, data.error);
+                        return false;
                     }
                 });
         }
@@ -394,8 +396,8 @@ $(function () {
                         $('#reasonCreateNew').html('Create and New');
                         resetForm(true);
                         event.preventDefault();
-                        return false;
                         popNotification(data.success, data.error);
+                        return false;
                     }
                 });
         }

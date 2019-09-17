@@ -1,3 +1,15 @@
+window.addEventListener('keydown', function (e) {
+    if (e.keyIdentifier == 'U+000A' || e.keyIdentifier == 'Enter' || e.keyCode == 13) {
+        if (e.target.nodeName == 'INPUT' && e.target.type == 'textarea') {
+            e.preventDefault();
+            return false;
+        }
+    } else if (e.key == " ") {
+        // e.preventDefault(); // Prevent the spacebar from toggling and firing the click event
+        e.target.offsetParent.children[0].click()
+    }
+}, true);
+
 function popNotification(success, error) {
     if (error) {
         $.toast({

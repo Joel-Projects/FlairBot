@@ -34,7 +34,12 @@ function toggleSubreddit(subreddit, enabled) {
 }
 
 $(document).ready(function () {
-
+    $(document).on("keyup", '[data-toggle="buttons"] input[type="checkbox"]', function (e) {
+        if (e.key == " ") {
+            e.preventDefault(); // Prevent the spacebar from toggling and firing the click event
+            $(this).closest('[data-toggle="buttons"]').button("toggle"); // Let Bootstrap toggle
+        }
+    });
 
     $("#subreddits").tablesorter({
         theme: "bootstrap",

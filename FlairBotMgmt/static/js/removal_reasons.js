@@ -29,48 +29,49 @@ function showDeleteModalFlair(flair_text, subreddit, flair_id, row_id) {
 }
 
 function resetForm(preserveSubreddit) {
-    let subreddit = document.getElementById('subreddit');
-    let flair_text = document.getElementById('flair_text');
-    let description = document.getElementById('description');
-    let lockToggle = document.getElementById('lockToggle');
-    let commentLockToggle = document.getElementById('commentLockToggle');
-    let banToggle = document.getElementById('banToggle');
-    let ban_duration = document.getElementById('ban_duration');
-    let ban_reason = document.getElementById('ban_reason');
-    let ban_message = document.getElementById('ban_message');
-    let ban_note = document.getElementById('ban_note');
-    let usernoteToggle = document.getElementById('usernoteToggle');
-    let usernote_note = document.getElementById('usernote_note');
-    let usernote_warning_type = document.getElementById('usernote_warning_type');
-    let commentToggle = document.getElementById('commentToggle');
-    let commentInput = document.getElementById('commentinput');
-    let commentOutput = document.getElementById('commentoutput');
-    let enableOnAdd = document.getElementById('enableOnAdd');
-    let banGroup = document.getElementById('banGroup');
-    let usernoteGroup = document.getElementById('usernoteGroup');
-    let commentEntry = document.getElementById('commentEntry');
-    if (!preserveSubreddit) {
-        subreddit.value = ""
-    }
-    flair_text.value = null;
-    description.value = null;
-    lockToggle.checked = false;
-    commentLockToggle.checked = false;
-    banToggle.checked = false;
-    ban_duration.value = 0;
-    ban_reason.value = null;
-    ban_message.value = null;
-    ban_note.value = null;
-    usernoteToggle.checked = false;
-    usernote_note.value = null;
-    usernote_warning_type.value = null;
-    commentToggle.checked = false;
-    commentInput.value = null;
-    commentOutput.value = null;
-    enableOnAdd.checked = true;
-    commentEntry.hidden = !commentToggle.checked;
-    banGroup.hidden = !banToggle.checked;
-    usernoteGroup.hidden = !usernoteToggle.checked;
+    // let subreddit = document.getElementById('subreddit');
+    // let flair_text = document.getElementById('flair_text');
+    // let description = document.getElementById('description');
+    // let lockToggle = document.getElementById('lockToggle');
+    // let commentLockToggle = document.getElementById('commentLockToggle');
+    // let banToggle = document.getElementById('banToggle');
+    // let ban_duration = document.getElementById('ban_duration');
+    // let ban_reason = document.getElementById('ban_reason');
+    // let ban_message = document.getElementById('ban_message');
+    // let ban_note = document.getElementById('ban_note');
+    // let usernoteToggle = document.getElementById('usernoteToggle');
+    // let usernote_note = document.getElementById('usernote_note');
+    // let usernote_warning_type = document.getElementById('usernote_warning_type');
+    // let commentToggle = document.getElementById('commentToggle');
+    // let commentInput = document.getElementById('commentinput');
+    // let commentOutput = document.getElementById('commentoutput');
+    // let enableOnAdd = document.getElementById('enableOnAdd');
+    // let banGroup = document.getElementById('banGroup');
+    // let usernoteGroup = document.getElementById('usernoteGroup');
+    // let commentEntry = document.getElementById('commentEntry');
+    // if (!preserveSubreddit) {
+    //     subreddit.value = ""
+    // }
+    // flair_text.value = null;
+    // description.value = null;
+    // lockToggle.checked = false;
+    // commentLockToggle.checked = false;
+    // banToggle.checked = false;
+    // ban_duration.value = 0;
+    // ban_reason.value = null;
+    // ban_message.value = null;
+    // ban_note.value = null;
+    // usernoteToggle.checked = false;
+    // usernote_note.value = null;
+    // usernote_warning_type.value = null;
+    // commentToggle.checked = false;
+    // commentInput.value = null;
+    // commentOutput.value = null;
+    // enableOnAdd.checked = true;
+    // commentEntry.hidden = !commentToggle.checked;
+    // banGroup.hidden = !banToggle.checked;
+    // usernoteGroup.hidden = !usernoteToggle.checked;
+    document.getElementById('createRemovalReasonForm').reset()
 }
 
 function toggleReason(id, enabled) {

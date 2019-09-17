@@ -28,3 +28,8 @@
     padding-right: 0px;
     padding-left: 0px;
 }
+
+.custom-control-input:focus ~ .custom-control-label::before {
+    -webkit-box-shadow: 0 0 0 0.2rem rgba(55, 90, 127, 0.25);
+    box-shadow: 0 0 0 0.2rem rgba(55, 90, 127, 0.25)
+}
