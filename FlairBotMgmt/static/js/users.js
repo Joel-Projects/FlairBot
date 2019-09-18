@@ -103,7 +103,7 @@ $(function () {
                         let usersTable = document.getElementById('users');
                         let row = usersTable.insertRow();
                         let username = row.insertCell();
-                        username.innerHTML = <a href="/u/${data.user.username}">{{user.username}}</a>
+                        username.innerHTML = `<a href="/u/${data.user.username}">${data.user.username}</a>`
                         let admin = row.insertCell();
                         if (data.user.admin) {
                             admin.innerHTML = `<i class="fas fa-check" style="font-size: 28px;color: #00bc8c"></i>`;
