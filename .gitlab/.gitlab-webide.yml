@@ -1,4 +1,4 @@
 terminal:
   before_script:
     - apt-get update
-  script: bash
+  script: sleep 60
