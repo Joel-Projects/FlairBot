@@ -11,7 +11,7 @@ docker-build-master:
     - docker info
   script:
     - docker build --pull -t "$IMAGE_TAG" .
-    - docker tag $CONTAINER_RELEASE_IMAGE
+    - docker tag $CI_REGISTRY_IMAGE atest
     - docker push $IMAGE_TAG
     - docker push $CONTAINER_RELEASE_IMAGE
   only:
