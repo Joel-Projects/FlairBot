@@ -8,6 +8,6 @@ docker-build-master:
     - docker info
   script:
     - docker build --pull -t "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG" .
-    - docker push https://registry.jesassn.org/jkpayne/$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
+    - docker push "$CI_REGISTRY/jkpayne/$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG"
   only:
     - master
