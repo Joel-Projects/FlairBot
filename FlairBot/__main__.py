@@ -416,9 +416,9 @@ def getChanges(results, previousResults):
     return needStarted, needStopped, statuses
 
 if __name__ == '__main__':
-    import pydevd_pycharm
-    pydevd_pycharm.settrace('24.225.29.166', port=2999, stdoutToServer=True, stderrToServer=True)
-    services = BotServices('FlairBot')
+    # import pydevd_pycharm
+    # pydevd_pycharm.settrace('24.225.29.166', port=2999, stdoutToServer=True, stderrToServer=True)
+    # services = BotServices('FlairBot')
     sql = services.postgres()
     log = DaemonLogger(services.logger(), 'FlairBot Daemon', False)
     sql.execute('SELECT * FROM flairbots.subreddits')
