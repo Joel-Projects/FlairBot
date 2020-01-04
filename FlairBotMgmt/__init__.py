@@ -10,7 +10,8 @@ from flask_login import LoginManager
 from flaskext.markdown import Markdown
 from flask_debugtoolbar import DebugToolbarExtension
 
-remote = sys.platform == 'darwin'
+# remote = sys.platform == 'darwin'
+remote = False
 debug = os.environ.get('FlairBotDebug', None) or True
 
 dsn = 'https://c9c6048b785542d99466b1bc74a3f3cb@sentry.jkpayne.com/20'
@@ -40,8 +41,8 @@ app.config['SECRET_KEY'] = b"\xf05s\\\x07\xddAM\xb6\xf4x]qOf\xb3\x03\xa1\xdf:\x1
 
 app.config['SQLALCHEMY_DATABASE_URI'] = f'postgresql://flairbot:52939L%t6eV3910t@digitalocean.jkpayne.com/postgres'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['DEBUG_TB_TEMPLATE_EDITOR_ENABLED'] = app.config['DEBUG_TB_PROFILER_ENABLED'] = debug
-app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
+# app.config['DEBUG_TB_TEMPLATE_EDITOR_ENABLED'] = app.config['DEBUG_TB_PROFILER_ENABLED'] = debug
+# app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 
 app.debug = remote
 login_manager = LoginManager()
@@ -49,8 +50,8 @@ login_manager.login_view = 'auth.login'
 
 db.init_app(app)
 Markdown(app)
-if debug:
-    DebugToolbarExtension().init_app(app)
+# if debug:
+#     DebugToolbarExtension().init_app(app)
 login_manager.init_app(app)
 
 @login_manager.user_loader

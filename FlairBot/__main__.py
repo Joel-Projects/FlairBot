@@ -113,8 +113,8 @@ class FlairRemoval:
 
     def __action(self, submission: praw.models.reddit.submission.Submission, action, modAction: praw.models.ModAction, testing=False):
         if not testing:
-            submission.mod.remove()
             try:
+                submission.mod.remove()
                 if action.ban:
                     self.__setBan(submission, action)
                 if action.lock:
@@ -416,6 +416,8 @@ def getChanges(results, previousResults):
     return needStarted, needStopped, statuses
 
 if __name__ == '__main__':
+    import pydevd_pycharm
+    pydevd_pycharm.settrace('localhost', port=7654, stdoutToServer=True, stderrToServer=True)
     services = BotServices('FlairBot')
     sql = services.postgres()
     log = DaemonLogger(services.logger(), 'FlairBot Daemon', False)
