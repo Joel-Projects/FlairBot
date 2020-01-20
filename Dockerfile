@@ -19,7 +19,7 @@ RUN apk add --no-cache postgresql-libs nano bash && \
     pip install -r requirements.txt && \
     apk --purge del .build-deps
 
-COPY --from=build-stage /FlairBotMgmt/static/dist /FlairBotMgmt/static/dist
+COPY --from=build-stage /FlairBotMgmt/static/dist static/dist
 
 WORKDIR /FlairBot
 EXPOSE 5000
