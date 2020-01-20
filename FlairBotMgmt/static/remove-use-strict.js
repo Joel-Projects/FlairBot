@@ -4,7 +4,7 @@
  const fs = require('fs')
  const path = require('path')
 
- const bundle = path.join(__dirname, 'bundle.js')
+ const bundle = path.join(__dirname, 'dist/bundle.js')
  const tmp = path.join(bundle + '.tmp')
 
  const input = fs.readFileSync(bundle, 'utf8')
