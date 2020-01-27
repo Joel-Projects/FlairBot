@@ -102,13 +102,13 @@ class FlairRemoval:
                     except psycopg2.IntegrityError as error:
                         self.log.exception(error)
                         pass
-            except Exception as error:
-                self.log.exception(error)
-                pass
             except psycopg2.InterfaceError as error:
                 self.log.exception(error)
                 services = BotServices('FlairBot')
                 self.sql = services.postgres()
+                pass
+            except Exception as error:
+                self.log.exception(error)
                 pass
 
     def __action(self, submission: praw.models.reddit.submission.Submission, action, modAction: praw.models.ModAction, testing=False):
