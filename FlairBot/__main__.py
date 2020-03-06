@@ -80,14 +80,34 @@ class FlairRemoval:
                     submissionFlair = ''
                 query = self.__parseModAction(modAction, submissionFlair)
                 self.log.debug('Checking if in flair list')
-                self.sql.execute('SELECT * FROM flairbots.removal_reasons WHERE subreddit=%s AND flair_text=%s AND enabled', (self.subreddit.display_name, submissionFlair))
+                try:
+                    self.sql.execute('SELECT * FROM flairbots.removal_reasons WHERE subreddit=%s AND flair_text=%s AND enabled', (self.subreddit.display_name, submissionFlair))
+                except psycopg2.InterfaceError as error:
+                    self.log.exception(error)
+                    del self.sql
+                    del BotServices
+                    from BotUtils import BotServices
+                    services = BotServices('FlairBot')
+                    self.sql = services.postgres()
+                    self.sql.execute('SELECT * FROM flairbots.removal_reasons WHERE subreddit=%s AND flair_text=%s AND enabled', (self.subreddit.display_name, submissionFlair))
+                    pass
                 actionParam = self.sql.fetchone()
                 if actionParam:
                     self.log.info(f'Found flair: {submissionFlair} by {modAction._mod} at {self.__genDateString(modAction.created_utc, format="%m/%d/%Y %I:%M:%S %p")}')
                     try:
                         self.log.info(f'Checking if already actioned')
-                        self.sql.execute(*query)
-                        result = self.sql.fetchone()
+                        try:
+                            self.sql.execute(*query)
+                            result = self.sql.fetchone()
+                        except psycopg2.InterfaceError as error:
+                            self.log.exception(error)
+                            del self.sql
+                            del BotServices
+                            from BotUtils import BotServices
+                            services = BotServices('FlairBot')
+                            self.sql = services.postgres()
+                            self.sql.execute(*query)
+                            pass
                         alreadyRemoved = result[[i for i, column in enumerate(self.sql.description) if column.name == 'case'][0]] == 'alreadyRemoved'
                         if alreadyRemoved:
                             self.log.info(f'Already Removed {submission.shortlink} by {getattr(submission.author, "name", "[deleted]")} with {submissionFlair} flair, Mod: {modAction._mod}')
