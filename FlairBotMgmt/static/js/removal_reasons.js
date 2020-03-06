@@ -252,8 +252,8 @@ $(function () {
                         $('#reasonCreate').html('Create');
                         resetForm(false);
                         event.preventDefault();
-                        return false;
                         popNotification(data.success, data.error);
+                        return false;
                     }
                 });
         }
@@ -311,8 +311,8 @@ $(function () {
                     $('#reasonCreateNew').html('Create and New');
                     resetForm(true);
                     event.preventDefault();
-                    return false;
                     popNotification(data.success, data.error);
+                    return false;
                 })
         }
     });

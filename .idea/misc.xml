@@ -4,6 +4,9 @@
     <option name="languageLevel" value="JSX" />
   </component>
   <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.7 (FlairBot)" project-jdk-type="Python SDK" />
+  <component name="TaskProjectConfiguration">
+    <server type="Gitlab" url="https://gitlab.jesassn.org" />
+  </component>
   <component name="WebPackConfiguration">
     <option name="path" value="$PROJECT_DIR$/FlairBotMgmt/static/webpack.config.js" />
   </component>
