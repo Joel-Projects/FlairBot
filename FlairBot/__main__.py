@@ -102,8 +102,18 @@ class FlairRemoval:
                     except psycopg2.IntegrityError as error:
                         self.log.exception(error)
                         pass
+                    except psycopg2.InterfaceError as error:
+                        self.log.exception(error)
+                        del self.sql
+                        del BotServices
+                        from BotUtils import BotServices
+                        services = BotServices('FlairBot')
+                        self.sql = services.postgres()
+                        pass
             except psycopg2.InterfaceError as error:
                 self.log.exception(error)
+                del BotServices
+                from BotUtils import BotServices
                 services = BotServices('FlairBot')
                 self.sql = services.postgres()
                 pass
@@ -247,7 +257,7 @@ class FlairRemoval:
         return {"channel": self.slackChannel, "attachments": [attachment]}
 
     def __setBan(self, submission: praw.models.Submission, params):
-        self.subreddit.banned.add(submission.author, duration=params.ban_duration, ban_reason=params.ban_reason, ban_message=self.__substituteToolboxTokens(params.ban_message, submission, self.header, self.footer), note=params.ban_note)
+        self.subreddit.banned.add(submission.author, duration=params.ban_duration, ban_reason=params.ban_reason, ban_message=self.__substituteToolboxTokens(params.ban_message, submission, self.header, self.footer), note=self.__substituteToolboxTokens(params.ban_note, submission, self.header, self.footer))
 
     def __parseUserReports(self, submission: praw.models.reddit.submission.Submission):
         userReportsDismissed = []
