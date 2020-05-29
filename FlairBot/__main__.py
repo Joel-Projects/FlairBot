@@ -156,7 +156,7 @@ class FlairRemoval:
                     if action.lock_comment:
                         comment.mod.lock()
                 if action.usernote:
-                    self.__setUsernote(action, submission)
+                    self.__setUsernote(action, submission, modAction)
             except Exception as error:
                 self.log.error(error)
         if self.webhookEnabled:
@@ -167,9 +167,9 @@ class FlairRemoval:
             self.log.debug(data)
             requests.post(self.webhook, json=data)
 
-    def __setUsernote(self, action, submission):
+    def __setUsernote(self, action, submission, modAction):
         subredditUsernotes = Usernotes(reddit=self.reddit, subreddit=submission.subreddit)
-        subredditUsernotes.addUsernote(user=submission.author, note=action.usernote_note, thing=submission, subreddit=submission.subreddit, warningType=action.usernote_warning_type)
+        subredditUsernotes.addUsernote(user=submission.author, note=action.usernote_note, thing=submission, warningType=action.usernote_warning_type, mod=modAction.mod)
 
     def __substituteToolboxTokens(self, text, submission, header, footer):
         if text:
