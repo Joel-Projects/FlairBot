@@ -17,8 +17,6 @@ class FlairRemoval:
         :param reddit: reddit instance
         :param subreddit: subreddit object
         :param webhook: webhook url to send removal notifications can be discord or slack. If slack set slack params.
-        :param flairList: of flairs
-        :param botName: name of bot. Schema name depends on this.
         :param sql: psycopg2 cursor object
         :param slack: set true to use slack
         :param slackChannel: channel for slack webhook
@@ -82,7 +80,7 @@ class FlairRemoval:
                 self.log.debug('Checking if in flair list')
                 try:
                     self.sql.execute('SELECT * FROM flairbots.removal_reasons WHERE subreddit=%s AND flair_text=%s AND enabled', (self.subreddit.display_name, submissionFlair))
-                except psycopg2.InterfaceError as error:
+                except Exception as error:
                     self.log.exception(error)
                     del self.sql
                     del BotServices
