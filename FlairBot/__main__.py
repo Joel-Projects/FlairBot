@@ -37,7 +37,7 @@ class FlairRemoval:
         return praw.models.util.stream_generator(self.subreddit.mod.log, skip_existing=True, pause_after=0, attribute_name='id', action='editflair')
 
     def __parseModAction(self, action: praw.models.ModAction, flair: str):
-        sqlStr = f'''INSERT INTO flairbots.flairlog(id, created_utc, moderator, subreddit, target_author, target_body, target_id, target_permalink, target_title, flair) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) ON CONFLICT (id) DO UPDATE SET created_utc=EXCLUDED.created_utc returning *,case when xmax::text::int > 0 then \'alreadyRemoved\' else \'inserted\' end,ctid;'''
+        sqlStr = f'''INSERT INTO flairbots.flairlog(id, created_utc, moderator, subreddit, target_author, target_id, target_body, target_permalink, target_title, flair) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) ON CONFLICT (id) DO UPDATE SET created_utc=EXCLUDED.created_utc returning *,case when xmax::text::int > 0 then \'alreadyRemoved\' else \'inserted\' end,ctid;'''
         id = getattr(action, 'id', None).split('_')[1]
         created_utc = getattr(action, 'created_utc', None)
         moderator = getattr(action, '_mod', None)
