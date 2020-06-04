@@ -120,9 +120,9 @@ class FlairRemoval:
                             result = session.execute(statement.on_conflict_do_update(index_elements=['id'], set_=dict(created_utc=statement.excluded.created_utc))).fetchone()[0]
                         except Exception as error:
                             self.log.exception(error)
+                            session.rollback()
                         if result == 'alreadyRemoved':
-                            self.log.info(
-                                f'Already Removed {submission.shortlink} by {getattr(submission.author, "name", "[deleted]")} with {submissionFlair} flair, Mod: {modAction._mod}')
+                            self.log.info(f'Already Removed {submission.shortlink} by {getattr(submission.author, "name", "[deleted]")} with {submissionFlair} flair, Mod: {modAction._mod}')
                         else:
                             try:
                                 self.log.info(f'Removing')
