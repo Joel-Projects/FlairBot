@@ -105,16 +105,16 @@ class FlairRemoval:
                 else:
                     submissionFlair = ''
                 data = self.__parseModAction(modAction, submissionFlair)
-                self.log.debug('Checking if in flair list')
+                self.log.debug('{self.subreddit.display_nameC | hecking if in flair list')
                 actionParam = None
                 try:
                     actionParam = self.session.query(RemovalReason).filter_by(subreddit=self.subreddit.display_name, flair_text=submissionFlair, enabled=True).first()
                 except Exception as error:
                     self.log.exception(error)
                 if actionParam:
-                    self.log.info(f'Found flair: {submissionFlair} by {modAction._mod} at {self.__genDateString(modAction.created_utc, format="%m/%d/%Y %I:%M:%S %p")}')
+                    self.log.info(f'{self.subreddit.display_name} | Found flair: {submissionFlair} by {modAction._mod} at {self.__genDateString(modAction.created_utc, format="%m/%d/%Y %I:%M:%S %p")}')
                     try:
-                        self.log.info(f'Checking if already actioned')
+                        self.log.info(f'{self.subreddit.display_name} | Checking if already actioned')
                         result = None
                         try:
                             statement = insert(Flairlog).values(**data).returning(sql.text('case when xmax::text::int > 0 then \'alreadyRemoved\' else \'inserted\' end,ctid'))
@@ -123,13 +123,13 @@ class FlairRemoval:
                             self.log.exception(error)
                             session.rollback()
                         if result == 'alreadyRemoved':
-                            self.log.info(f'Already Removed {submission.shortlink} by {getattr(submission.author, "name", "[deleted]")} with {submissionFlair} flair, Mod: {modAction._mod}')
+                            self.log.info(f'{self.subreddit.display_name} | Already Removed {submission.shortlink} by {getattr(submission.author, "name", "[deleted]")} with {submissionFlair} flair, Mod: {modAction._mod}')
                         else:
                             try:
-                                self.log.info(f'Removing')
+                                self.log.info(f'{self.subreddit.display_name} | Removing')
                                 self.__action(submission, actionParam, modAction)
                                 self.log.info(
-                                    f'Successfully removed {submission.shortlink} by {getattr(submission.author, "name", "[deleted]")} with {submissionFlair} flair, Mod: {modAction._mod}')
+                                    f'{self.subreddit.display_name} | Successfully removed {submission.shortlink} by {getattr(submission.author, "name", "[deleted]")} with {submissionFlair} flair, Mod: {modAction._mod}')
                             except Exception as error:
                                 self.log.exception(error)
                                 pass
@@ -368,22 +368,22 @@ def flairBot(reddit, subreddit, webhook, webhook_type, header, footer, dsn):
     reddit = praw.Reddit(**reddit)
     engine = create_engine(dsn)
     session = sessionmaker(bind=engine)()
-    log = DaemonLogger(services.logger(), subreddit)
+    log = services.logger()
     subreddit = reddit.subreddit(subreddit)
     slack = webhook_type == 'slack'
     flairRemoval = FlairRemoval(reddit, subreddit, webhook, log, webhookEnabled=bool(webhook), slack=slack, header=header, footer=footer, session=session)
     checkModAction = flairRemoval.checkModAction
-    log.info(f'Starting FlairBot')
+    log.info(f'{subreddit.display_name} | Starting FlairBot')
     while True:
         try:
-            log.info(f'Checking last 25 flair edits...')
+            log.info(f'{subreddit.display_name} | Checking last 25 flair edits...')
             for modAction in subreddit.mod.log(action='editflair', limit=5):
                 try:
                     checkModAction(modAction)
                 except Exception as error:
                     log.exception(error)
                     pass
-            log.info(f'Scanning Mod Log')
+            log.info(f'{subreddit.display_name} | Scanning Mod Log')
             for modAction in flairRemoval.logStream():
                 checkModAction(modAction)
         except KeyboardInterrupt:
