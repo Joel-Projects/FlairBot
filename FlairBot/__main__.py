@@ -12,6 +12,7 @@ from BotUtils.CommonUtils import BotServices, getBotSettings
 from SpazUtils import Usernotes
 from discord import embeds
 from models import Flairlog, RemovalReason, Subreddit
+
 from sqlalchemy import create_engine, sql
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import Session, sessionmaker
@@ -448,8 +449,8 @@ def getChanges(results, previousResults):
     return needStarted, needStopped, statuses
 
 if __name__ == '__main__':
-    import pydevd_pycharm
-    pydevd_pycharm.settrace('24.225.29.166', port=2999, stdoutToServer=True, stderrToServer=True)
+    # import pydevd_pycharm
+    # pydevd_pycharm.settrace('24.225.29.166', port=2999, stdoutToServer=True, stderrToServer=True)
     services = BotServices('FlairBot')
     settings = getBotSettings('FlairBot', 'postgres')
     if sys.platform == 'darwin':
