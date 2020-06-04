@@ -16,7 +16,7 @@ from sqlalchemy import create_engine, sql
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import Session, sessionmaker
 
-from FlairBot.models import Flairlog, RemovalReason, Subreddit
+from models import Flairlog, RemovalReason, Subreddit
 
 
 thingTypes = {'t1': 'comment', 't4': 'message', 't2': 'redditor', 't3': 'submission', 't5': 'subreddit', 't6': 'trophy'}
