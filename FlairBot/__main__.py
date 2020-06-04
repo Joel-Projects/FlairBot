@@ -6,17 +6,15 @@ from contextlib import contextmanager
 from multiprocessing import Process
 
 import praw
-import psycopg2
 import requests
 import timeago
 from BotUtils.CommonUtils import BotServices, getBotSettings
 from SpazUtils import Usernotes
 from discord import embeds
+from models import Flairlog, RemovalReason, Subreddit
 from sqlalchemy import create_engine, sql
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import Session, sessionmaker
-
-from models import Flairlog, RemovalReason, Subreddit
 
 
 thingTypes = {'t1': 'comment', 't4': 'message', 't2': 'redditor', 't3': 'submission', 't5': 'subreddit', 't6': 'trophy'}
@@ -39,8 +37,7 @@ class SessionManager:
 
 class FlairRemoval:
 
-    def __init__(self, reddit: praw.Reddit, subreddit: praw.reddit.models.Subreddit, webhook: str, log, slack=False, slackChannel=None, webhookEnabled=True, header=None,
-            footer=None, session=None):
+    def __init__(self, reddit, subreddit, webhook, log, slack=False, slackChannel=None, webhookEnabled=True, header=None, footer=None, session=None):
         """
         Initialized FlairRemoval Class
 
@@ -451,8 +448,8 @@ def getChanges(results, previousResults):
     return needStarted, needStopped, statuses
 
 if __name__ == '__main__':
-    # import pydevd_pycharm
-    # pydevd_pycharm.settrace('24.225.29.166', port=2999, stdoutToServer=True, stderrToServer=True)
+    import pydevd_pycharm
+    pydevd_pycharm.settrace('24.225.29.166', port=2999, stdoutToServer=True, stderrToServer=True)
     services = BotServices('FlairBot')
     settings = getBotSettings('FlairBot', 'postgres')
     if sys.platform == 'darwin':
