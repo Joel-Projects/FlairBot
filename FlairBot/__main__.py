@@ -1,16 +1,46 @@
-import datetime, time, praw, psycopg2, requests, timeago, logging
+import datetime
+import logging
+import sys
+import time
+from contextlib import contextmanager
 from multiprocessing import Process
-from BotUtils.CommonUtils import BotServices
-from discord import embeds
+
+import praw
+import psycopg2
+import requests
+import timeago
+from BotUtils.CommonUtils import BotServices, getBotSettings
 from SpazUtils import Usernotes
+from discord import embeds
+from sqlalchemy import create_engine, sql
+from sqlalchemy.dialects.postgresql import insert
+from sqlalchemy.orm import Session, sessionmaker
+
+from FlairBot.models import Flairlog, RemovalReason, Subreddit
+
 
 thingTypes = {'t1': 'comment', 't4': 'message', 't2': 'redditor', 't3': 'submission', 't5': 'subreddit', 't6': 'trophy'}
 
+class SessionManager:
+
+    def __init__(self, session):
+        self.session = session
+
+    @contextmanager
+    def startTransaction(self) -> Session:
+        try:
+            yield session.session
+            session.session.commit()
+        except:
+            session.session.rollback()
+            raise
+        finally:
+            session.session.close()
+
 class FlairRemoval:
 
-    __all__ = ['checkModAction', 'logStream']
-
-    def __init__(self, reddit: praw.Reddit, subreddit: praw.reddit.models.Subreddit, webhook: str, sql: psycopg2.extensions.cursor, log, slack=False, slackChannel=None, webhookEnabled=True, header=None, footer=None):
+    def __init__(self, reddit: praw.Reddit, subreddit: praw.reddit.models.Subreddit, webhook: str, log, slack=False, slackChannel=None, webhookEnabled=True, header=None,
+            footer=None, session=None):
         """
         Initialized FlairRemoval Class
 
@@ -25,20 +55,20 @@ class FlairRemoval:
         self.reddit = reddit
         self.subreddit = subreddit
         self.webhook = webhook
-        self.sql = sql
         self.slack = slack
         self.log = log
         self.slackChannel = slackChannel
         self.webhookEnabled = webhookEnabled
         self.header = header
         self.footer = footer
+        self.session: Session = session
+        self.sessionManager = SessionManager(session)
 
     def logStream(self):
         return praw.models.util.stream_generator(self.subreddit.mod.log, skip_existing=True, pause_after=0, attribute_name='id', action='editflair')
 
     def __parseModAction(self, action: praw.models.ModAction, flair: str):
-        sqlStr = f'''INSERT INTO flairbots.flairlog(id, created_utc, moderator, subreddit, target_author, target_id, target_body, target_permalink, target_title, flair) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) ON CONFLICT (id) DO UPDATE SET created_utc=EXCLUDED.created_utc returning *,case when xmax::text::int > 0 then \'alreadyRemoved\' else \'inserted\' end,ctid;'''
-        id = getattr(action, 'id', None).split('_')[1]
+        actionId = getattr(action, 'id', None).split('_')[1]
         created_utc = getattr(action, 'created_utc', None)
         moderator = getattr(action, '_mod', None)
         subreddit = getattr(action, 'subreddit', None)
@@ -48,19 +78,19 @@ class FlairRemoval:
         target_body = getattr(action, 'target_body', None)
         target_permalink = getattr(action, 'target_permalink', None)
         target_title = getattr(action, 'target_title', None)
-        data = (
-            id,
-            psycopg2.TimestampFromTicks(created_utc),
-            moderator,
-            subreddit,
-            target_author,
-            target_id,
-            target_body,
-            target_permalink,
-            target_title,
-            flair
-            )
-        return sqlStr, data
+        data = {
+            'id': actionId,
+            'created_utc': psycopg2.TimestampFromTicks(created_utc),
+            'moderator': moderator,
+            'subreddit': subreddit,
+            'target_author': target_author,
+            'target_id': target_id,
+            'target_body': target_body,
+            'target_permalink': target_permalink,
+            'target_title': target_title,
+            'flair': flair
+        }
+        return data
 
     def __genDateString(self, epoch=time.localtime(), gmtime=False, format='%B %d, %Y at %I:%M:%S %p %Z'):
         if not gmtime:
@@ -76,65 +106,38 @@ class FlairRemoval:
                     submissionFlair = submission.link_flair_text.lower()
                 else:
                     submissionFlair = ''
-                query = self.__parseModAction(modAction, submissionFlair)
+                data = self.__parseModAction(modAction, submissionFlair)
                 self.log.debug('Checking if in flair list')
+                actionParam = None
                 try:
-                    self.sql.execute('SELECT * FROM flairbots.removal_reasons WHERE subreddit=%s AND flair_text=%s AND enabled', (self.subreddit.display_name, submissionFlair))
+                    actionParam = session.query(RemovalReason).filter_by(subreddit=self.subreddit.display_name, flair_text=submissionFlair, enabled=True)
                 except Exception as error:
                     self.log.exception(error)
-                    del self.sql
-                    del BotServices
-                    from BotUtils import BotServices
-                    services = BotServices('FlairBot')
-                    self.sql = services.postgres()
-                    self.sql.execute('SELECT * FROM flairbots.removal_reasons WHERE subreddit=%s AND flair_text=%s AND enabled', (self.subreddit.display_name, submissionFlair))
-                    pass
-                actionParam = self.sql.fetchone()
                 if actionParam:
                     self.log.info(f'Found flair: {submissionFlair} by {modAction._mod} at {self.__genDateString(modAction.created_utc, format="%m/%d/%Y %I:%M:%S %p")}')
                     try:
                         self.log.info(f'Checking if already actioned')
+                        result = None
                         try:
-                            self.sql.execute(*query)
-                            result = self.sql.fetchone()
-                        except psycopg2.InterfaceError as error:
+                            statement = insert(Flairlog).values(**data).returning(sql.text('case when xmax::text::int > 0 then \'alreadyRemoved\' else \'inserted\' end,ctid'))
+                            result = session.execute(statement.on_conflict_do_update(index_elements=['id'], set_=dict(created_utc=statement.excluded.created_utc))).fetchone()[0]
+                        except Exception as error:
                             self.log.exception(error)
-                            del self.sql
-                            del BotServices
-                            from BotUtils import BotServices
-                            services = BotServices('FlairBot')
-                            self.sql = services.postgres()
-                            self.sql.execute(*query)
-                            pass
-                        alreadyRemoved = result[[i for i, column in enumerate(self.sql.description) if column.name == 'case'][0]] == 'alreadyRemoved'
-                        if alreadyRemoved:
-                            self.log.info(f'Already Removed {submission.shortlink} by {getattr(submission.author, "name", "[deleted]")} with {submissionFlair} flair, Mod: {modAction._mod}')
+                        if result == 'alreadyRemoved':
+                            self.log.info(
+                                f'Already Removed {submission.shortlink} by {getattr(submission.author, "name", "[deleted]")} with {submissionFlair} flair, Mod: {modAction._mod}')
                         else:
                             try:
                                 self.log.info(f'Removing')
                                 self.__action(submission, actionParam, modAction)
-                                self.log.info(f'Successfully removed {submission.shortlink} by {getattr(submission.author, "name", "[deleted]")} with {submissionFlair} flair, Mod: {modAction._mod}')
+                                self.log.info(
+                                    f'Successfully removed {submission.shortlink} by {getattr(submission.author, "name", "[deleted]")} with {submissionFlair} flair, Mod: {modAction._mod}')
                             except Exception as error:
                                 self.log.exception(error)
                                 pass
-                    except psycopg2.IntegrityError as error:
+                    except Exception as error:
                         self.log.exception(error)
                         pass
-                    except psycopg2.InterfaceError as error:
-                        self.log.exception(error)
-                        del self.sql
-                        del BotServices
-                        from BotUtils import BotServices
-                        services = BotServices('FlairBot')
-                        self.sql = services.postgres()
-                        pass
-            except psycopg2.InterfaceError as error:
-                self.log.exception(error)
-                del BotServices
-                from BotUtils import BotServices
-                services = BotServices('FlairBot')
-                self.sql = services.postgres()
-                pass
             except Exception as error:
                 self.log.exception(error)
                 pass
@@ -175,7 +178,8 @@ class FlairRemoval:
                 text = f'{header}\n\n---\n\n{text}'
             if footer:
                 text = f'{text}\n\n---\n\n{footer}'
-            return text.format(author=getattr(submission.author, 'name', '[deleted]'), subreddit=submission.subreddit, kind=thingTypes[submission.fullname[:2]], domain=submission.domain, title=submission.title, url=submission.shortlink)
+            return text.format(author=getattr(submission.author, 'name', '[deleted]'), subreddit=submission.subreddit, kind=thingTypes[submission.fullname[:2]],
+                domain=submission.domain, title=submission.title, url=submission.shortlink)
         else:
             return None
 
@@ -275,7 +279,9 @@ class FlairRemoval:
         return {"channel": self.slackChannel, "attachments": [attachment]}
 
     def __setBan(self, submission: praw.models.Submission, params):
-        self.subreddit.banned.add(submission.author, duration=params.ban_duration, ban_reason=params.ban_reason, ban_message=self.__substituteToolboxTokens(params.ban_message, submission, self.header, self.footer), note=self.__substituteToolboxTokens(params.ban_note, submission, self.header, self.footer))
+        self.subreddit.banned.add(submission.author, duration=params.ban_duration, ban_reason=params.ban_reason,
+            ban_message=self.__substituteToolboxTokens(params.ban_message, submission, self.header, self.footer),
+            note=self.__substituteToolboxTokens(params.ban_note, submission, self.header, self.footer))
 
     def __parseUserReports(self, submission: praw.models.reddit.submission.Submission):
         userReportsDismissed = []
@@ -293,7 +299,7 @@ class FlairRemoval:
         if len(final) == 0 and len(dismissedFinal) == 0:
             return
         else:
-            return ((final, len(userReports)), (dismissedFinal, len(userReportsDismissed)))
+            return (final, len(userReports)), (dismissedFinal, len(userReportsDismissed))
 
     def __parseModReports(self, submission: praw.models.reddit.submission.Submission):
         modReportsDismissed = []
@@ -311,7 +317,7 @@ class FlairRemoval:
         if len(final) == 0 and len(dismissedFinal) == 0:
             return
         else:
-            return ((final, len(modReports)), (dismissedFinal, len(modReportsDismissed)))
+            return (final, len(modReports)), (dismissedFinal, len(modReportsDismissed))
 
     def __parseUsernotes(self, subredditUsernotes, user):
         usernoteStringLink = '[{}] [{}]({}) - by /u/{} - {}\n'
@@ -337,7 +343,7 @@ class FlairRemoval:
                     elif l[0] == 'm':
                         link = f'https://www.reddit.com/message/messages/{l.split(",")[1]}'
                         final += usernoteStringLink.format(w, n, link, m, t)
-                if len(l) == 15 and l[0] == 'l' :
+                if len(l) == 15 and l[0] == 'l':
                     comment = self.reddit.comment(lstr[2])
                     commentid = comment.id
                     submission = comment.submission
@@ -359,14 +365,15 @@ def listWithCommas(items):
         return f'{items[0]} and {items[1]}'
     return ', '.join(items[:-1]) + ', and ' + items[-1]
 
-def flairBot(reddit, subreddit, webhook, webhook_type, header, footer):
+def flairBot(reddit, subreddit, webhook, webhook_type, header, footer, dsn):
     services = BotServices('FlairBot')
     reddit = praw.Reddit(**reddit)
-    sql = services.postgres()
+    engine = create_engine(dsn)
+    session = sessionmaker(bind=engine)()
     log = DaemonLogger(services.logger(), subreddit)
     subreddit = reddit.subreddit(subreddit)
     slack = webhook_type == 'slack'
-    flairRemoval = FlairRemoval(reddit, subreddit, webhook, sql, log, webhookEnabled=bool(webhook), slack=slack, header=header, footer=footer)
+    flairRemoval = FlairRemoval(reddit, subreddit, webhook, log, webhookEnabled=bool(webhook), slack=slack, header=header, footer=footer, session=session)
     checkModAction = flairRemoval.checkModAction
     log.info(f'Starting FlairBot')
     while True:
@@ -378,7 +385,7 @@ def flairBot(reddit, subreddit, webhook, webhook_type, header, footer):
                 except Exception as error:
                     log.exception(error)
                     pass
-            log.info(f'Scanning Modlog')
+            log.info(f'Scanning Mod Log')
             for modAction in flairRemoval.logStream():
                 checkModAction(modAction)
         except KeyboardInterrupt:
@@ -447,20 +454,30 @@ if __name__ == '__main__':
     # import pydevd_pycharm
     # pydevd_pycharm.settrace('24.225.29.166', port=2999, stdoutToServer=True, stderrToServer=True)
     services = BotServices('FlairBot')
-    sql = services.postgres()
+    settings = getBotSettings('FlairBot', 'postgres')
+    if sys.platform == 'darwin':
+        settings['dbHost'] = settings['sshHost']
+    url = f"postgresql://{settings['dbUser']}:{settings['dbPass']}@{settings['dbHost']}:5432/{settings['dbName']}"
+    engine = create_engine(url)
+    session = sessionmaker(bind=engine)()
+    sessionManager = SessionManager(session)
     log = DaemonLogger(services.logger(), 'FlairBot Daemon', False)
-    sql.execute('SELECT * FROM flairbots.subreddits')
-    previousResults = results = sql.fetchall()
+    previousResults = results = session.query(Subreddit).all()
     results = [i for i in results if i.enabled]
-    subreddits = {result.subreddit: {'reddit': services.reddit(result.bot_account).config._settings, 'webhook': result.webhook, 'webhook_type': result.webhook_type, 'header': result.header, 'footer': result.footer} for result in results}
-    flairBots = {subreddit: Process(target=flairBot, kwargs={'subreddit': subreddit, **subreddits[subreddit]}) for subreddit in subreddits}
+    subreddits = {result.subreddit: {
+        'reddit': services.reddit(result.bot_account).config._settings,
+        'webhook': result.webhook,
+        'webhook_type': result.webhook_type,
+        'header': result.header,
+        'footer': result.footer
+    } for result in results}
+    flairBots = {subreddit: Process(target=flairBot, kwargs={'subreddit': subreddit, **subreddits[subreddit], 'dsn': url}) for subreddit in subreddits}
     for subreddit in subreddits:
         bot = flairBots[subreddit]
         bot.start()
 
     while True:
-        sql.execute('SELECT * FROM flairbots.subreddits')
-        results = sql.fetchall()
+        results = session.query(Subreddit).all()
         needStarted, needStopped, statuses = getChanges(results, previousResults)
         previousResults = results
         if needStarted or needStopped:
@@ -479,9 +496,21 @@ if __name__ == '__main__':
                 log.info(f'FlairBot for r/{result.subreddit} was {statuses[result.subreddit]}...starting')
                 if result.subreddit in flairBots:
                     flairBots[result.subreddit].terminate()
-                subreddits[result.subreddit] = {'reddit': services.reddit(result.bot_account).config._settings, 'webhook': result.webhook, 'webhook_type': result.webhook_type, 'header': result.header, 'footer': result.footer}
+                subreddits[result.subreddit] = {
+                    'reddit': services.reddit(result.bot_account).config._settings,
+                    'webhook': result.webhook,
+                    'webhook_type': result.webhook_type,
+                    'header': result.header,
+                    'footer': result.footer
+                }
                 flairBots[result.subreddit] = bot = Process(target=flairBot, kwargs={'subreddit': result.subreddit, **subreddits[result.subreddit]})
                 bot.start()
-        subreddits = {result.subreddit: {'reddit': services.reddit(result.bot_account).config._settings, 'webhook': result.webhook, 'webhook_type': result.webhook_type, 'header': result.header, 'footer': result.footer} for result in results}
+        subreddits = {result.subreddit: {
+            'reddit': services.reddit(result.bot_account).config._settings,
+            'webhook': result.webhook,
+            'webhook_type': result.webhook_type,
+            'header': result.header,
+            'footer': result.footer
+        } for result in results}
         log.debug('sleeping for 5 seconds')
         time.sleep(5)
