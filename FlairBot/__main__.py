@@ -110,7 +110,7 @@ class FlairRemoval:
                 self.log.debug('Checking if in flair list')
                 actionParam = None
                 try:
-                    actionParam = session.query(RemovalReason).filter_by(subreddit=self.subreddit.display_name, flair_text=submissionFlair, enabled=True)
+                    actionParam = session.query(RemovalReason).filter_by(subreddit=self.subreddit.display_name, flair_text=submissionFlair, enabled=True).all()
                 except Exception as error:
                     self.log.exception(error)
                 if actionParam:
