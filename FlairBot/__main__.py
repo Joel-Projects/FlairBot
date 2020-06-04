@@ -80,7 +80,7 @@ class FlairRemoval:
         target_title = getattr(action, 'target_title', None)
         data = {
             'id': actionId,
-            'created_utc': psycopg2.TimestampFromTicks(created_utc),
+            'created_utc': datetime.datetime.fromtimestamp(created_utc).astimezone(),
             'moderator': moderator,
             'subreddit': subreddit,
             'target_author': target_author,
@@ -110,7 +110,7 @@ class FlairRemoval:
                 self.log.debug('Checking if in flair list')
                 actionParam = None
                 try:
-                    actionParam = session.query(RemovalReason).filter_by(subreddit=self.subreddit.display_name, flair_text=submissionFlair, enabled=True).first()
+                    actionParam = self.session.query(RemovalReason).filter_by(subreddit=self.subreddit.display_name, flair_text=submissionFlair, enabled=True).first()
                 except Exception as error:
                     self.log.exception(error)
                 if actionParam:
