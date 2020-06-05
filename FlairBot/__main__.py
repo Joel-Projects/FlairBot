@@ -3,12 +3,12 @@ from multiprocessing import Process
 from BotUtils.CommonUtils import BotServices
 from discord import embeds
 from SpazUtils import Usernotes
+from psycopg2.extras import NamedTupleCursor
+
 
 thingTypes = {'t1': 'comment', 't4': 'message', 't2': 'redditor', 't3': 'submission', 't5': 'subreddit', 't6': 'trophy'}
-
 class FlairRemoval:
 
-    __all__ = ['checkModAction', 'logStream']
 
     def __init__(self, reddit: praw.Reddit, subreddit: praw.reddit.models.Subreddit, webhook: str, sql: psycopg2.extensions.cursor, log, slack=False, slackChannel=None, webhookEnabled=True, header=None, footer=None):
         """
@@ -25,13 +25,39 @@ class FlairRemoval:
         self.reddit = reddit
         self.subreddit = subreddit
         self.webhook = webhook
-        self.sql = sql
+        self.sql: NamedTupleCursor = sql
         self.slack = slack
         self.log = log
         self.slackChannel = slackChannel
         self.webhookEnabled = webhookEnabled
         self.header = header
         self.footer = footer
+
+    def _execute(self, query, args=None, fetchType='all'):
+        global services, BotServices
+        def doQuery(sql, query, args, fetchType):
+            sql.execute(query, args)
+            if fetchType == 'all':
+                return sql.fetchall()
+            elif fetchType == 'one':
+                return sql.fetchone()
+        try:
+            if not self.sql is None:
+                if self.sql.closed:
+                    del self.sql
+                    services = BotServices('FlairBot')
+                    self.sql = services.postgres()
+            else:
+                services = BotServices('FlairBot')
+                self.sql = services.postgres()
+            return doQuery(self.sql, query, args, fetchType)
+        except:
+            if not self.sql is None:
+                del self.sql
+            services = BotServices('FlairBot')
+            self.sql = services.postgres()
+            return doQuery(self.sql, query, args, fetchType)
+
 
     def logStream(self):
         return praw.models.util.stream_generator(self.subreddit.mod.log, skip_existing=True, pause_after=0, attribute_name='id', action='editflair')
@@ -78,35 +104,13 @@ class FlairRemoval:
                     submissionFlair = ''
                 query = self.__parseModAction(modAction, submissionFlair)
                 self.log.debug('Checking if in flair list')
-                try:
-                    self.sql.execute('SELECT * FROM flairbots.removal_reasons WHERE subreddit=%s AND flair_text=%s AND enabled', (self.subreddit.display_name, submissionFlair))
-                except Exception as error:
-                    self.log.exception(error)
-                    del self.sql
-                    del BotServices
-                    from BotUtils import BotServices
-                    services = BotServices('FlairBot')
-                    self.sql = services.postgres()
-                    self.sql.execute('SELECT * FROM flairbots.removal_reasons WHERE subreddit=%s AND flair_text=%s AND enabled', (self.subreddit.display_name, submissionFlair))
-                    pass
-                actionParam = self.sql.fetchone()
+                actionParam = self._execute('SELECT * FROM flairbots.removal_reasons WHERE subreddit=%s AND flair_text=%s AND enabled', (self.subreddit.display_name, submissionFlair), 'one')
                 if actionParam:
                     self.log.info(f'Found flair: {submissionFlair} by {modAction._mod} at {self.__genDateString(modAction.created_utc, format="%m/%d/%Y %I:%M:%S %p")}')
                     try:
                         self.log.info(f'Checking if already actioned')
-                        try:
-                            self.sql.execute(*query)
-                            result = self.sql.fetchone()
-                        except psycopg2.InterfaceError as error:
-                            self.log.exception(error)
-                            del self.sql
-                            del BotServices
-                            from BotUtils import BotServices
-                            services = BotServices('FlairBot')
-                            self.sql = services.postgres()
-                            self.sql.execute(*query)
-                            pass
-                        alreadyRemoved = result[[i for i, column in enumerate(self.sql.description) if column.name == 'case'][0]] == 'alreadyRemoved'
+                        result = self._execute(*query, fetchType='one')
+                        alreadyRemoved = result.case == 'alreadyRemoved'
                         if alreadyRemoved:
                             self.log.info(f'Already Removed {submission.shortlink} by {getattr(submission.author, "name", "[deleted]")} with {submissionFlair} flair, Mod: {modAction._mod}')
                         else:
@@ -123,21 +127,15 @@ class FlairRemoval:
                     except psycopg2.InterfaceError as error:
                         self.log.exception(error)
                         del self.sql
-                        del BotServices
                         from BotUtils import BotServices
-                        services = BotServices('FlairBot')
                         self.sql =  BotServices('FlairBot').postgres()
-                        pass
             except psycopg2.InterfaceError as error:
                 self.log.exception(error)
-                del BotServices
+                del self.sql
                 from BotUtils import BotServices
-                services = BotServices('FlairBot')
-                self.sql = services.postgres()
-                pass
+                self.sql = BotServices('FlairBot').postgres()
             except Exception as error:
                 self.log.exception(error)
-                pass
 
     def __action(self, submission: praw.models.reddit.submission.Submission, action, modAction: praw.models.ModAction, testing=False):
         if not testing:
