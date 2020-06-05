@@ -371,11 +371,7 @@ def flairBot(reddit, subreddit, webhook, webhook_type, header, footer):
         try:
             log.info(f'Checking last 25 flair edits...')
             for modAction in subreddit.mod.log(action='editflair', limit=5):
-                try:
-                    checkModAction(modAction)
-                except Exception as error:
-                    log.exception(error)
-                    pass
+                checkModAction(modAction)
             log.info(f'Scanning Modlog')
             for modAction in flairRemoval.logStream():
                 checkModAction(modAction)
