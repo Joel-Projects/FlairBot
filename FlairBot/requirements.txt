@@ -1,3 +1,2 @@
 SpazUtils
 -e ../BotUtils
-sqlalchemy

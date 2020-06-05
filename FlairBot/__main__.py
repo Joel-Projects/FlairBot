@@ -7,6 +7,8 @@ from psycopg2.extras import NamedTupleCursor
 
 
 thingTypes = {'t1': 'comment', 't4': 'message', 't2': 'redditor', 't3': 'submission', 't5': 'subreddit', 't6': 'trophy'}
+
+# noinspection PyTypeChecker,DuplicatedCode,PyMethodMayBeStatic,PyShadowingNames,PyUnresolvedReferences
 class FlairRemoval:
 
 
@@ -34,7 +36,6 @@ class FlairRemoval:
         self.footer = footer
 
     def _execute(self, query, args=None, fetchType='all'):
-        global services, BotServices
         def doQuery(sql, query, args, fetchType):
             sql.execute(query, args)
             if fetchType == 'all':
@@ -64,7 +65,7 @@ class FlairRemoval:
 
     def __parseModAction(self, action: praw.models.ModAction, flair: str):
         sqlStr = f'''INSERT INTO flairbots.flairlog(id, created_utc, moderator, subreddit, target_author, target_id, target_body, target_permalink, target_title, flair) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) ON CONFLICT (id) DO UPDATE SET created_utc=EXCLUDED.created_utc returning *,case when xmax::text::int > 0 then \'alreadyRemoved\' else \'inserted\' end,ctid;'''
-        id = getattr(action, 'id', None).split('_')[1]
+        actionId = getattr(action, 'id', None).split('_')[1]
         created_utc = getattr(action, 'created_utc', None)
         moderator = getattr(action, '_mod', None)
         subreddit = getattr(action, 'subreddit', None)
@@ -75,7 +76,7 @@ class FlairRemoval:
         target_permalink = getattr(action, 'target_permalink', None)
         target_title = getattr(action, 'target_title', None)
         data = (
-            id,
+            actionId,
             psycopg2.TimestampFromTicks(created_utc),
             moderator,
             subreddit,
@@ -88,11 +89,11 @@ class FlairRemoval:
             )
         return sqlStr, data
 
-    def __genDateString(self, epoch=time.localtime(), gmtime=False, format='%B %d, %Y at %I:%M:%S %p %Z'):
+    def __genDateString(self, epoch=time.localtime(), gmtime=False, dateFormat='%B %d, %Y at %I:%M:%S %p %Z'):
         if not gmtime:
-            return time.strftime(format, time.localtime(epoch))
+            return time.strftime(dateFormat, time.localtime(epoch))
         else:
-            return time.strftime(format, time.gmtime(epoch))
+            return time.strftime(dateFormat, time.gmtime(epoch))
 
     def checkModAction(self, modAction: praw.models.ModAction):
         if modAction and modAction.action == 'editflair' and modAction.target_fullname and modAction.target_fullname[:2] == "t3":
@@ -106,7 +107,7 @@ class FlairRemoval:
                 self.log.debug('Checking if in flair list')
                 actionParam = self._execute('SELECT * FROM flairbots.removal_reasons WHERE subreddit=%s AND flair_text=%s AND enabled', (self.subreddit.display_name, submissionFlair), 'one')
                 if actionParam:
-                    self.log.info(f'Found flair: {submissionFlair} by {modAction._mod} at {self.__genDateString(modAction.created_utc, format="%m/%d/%Y %I:%M:%S %p")}')
+                    self.log.info(f'Found flair: {submissionFlair} by {modAction._mod} at {self.__genDateString(modAction.created_utc, dateFormat="%m/%d/%Y %I:%M:%S %p")}')
                     try:
                         self.log.info(f'Checking if already actioned')
                         result = self._execute(*query, fetchType='one')
@@ -334,6 +335,7 @@ class FlairRemoval:
                         link = f'https://www.reddit.com/message/messages/{l.split(",")[1]}'
                         final += usernoteStringLink.format(w, n, link, m, t)
                 if len(l) == 15 and l[0] == 'l' :
+                    # noinspection PyUnboundLocalVariable
                     comment = self.reddit.comment(lstr[2])
                     commentid = comment.id
                     submission = comment.submission
@@ -355,6 +357,7 @@ def listWithCommas(items):
         return f'{items[0]} and {items[1]}'
     return ', '.join(items[:-1]) + ', and ' + items[-1]
 
+# noinspection PyShadowingNames
 def flairBot(reddit, subreddit, webhook, webhook_type, header, footer):
     services = BotServices('FlairBot')
     reddit = praw.Reddit(**reddit)
@@ -407,6 +410,7 @@ def sortList(items):
     items.sort()
     return items
 
+# noinspection PyShadowingNames
 def getChanges(results, previousResults):
     if previousResults != results:
         subNames = set(sortList([result.subreddit for result in results if result.enabled]))
