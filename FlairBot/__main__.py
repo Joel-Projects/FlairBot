@@ -382,12 +382,12 @@ def flairBot(reddit, subreddit, webhook, webhook_type, header, footer):
         try:
             log.info(f'r/{subreddit} | Checking last 25 flair edits...')
             for i, modAction in enumerate(subreddit.mod.log(action='editflair', limit=25), 1):
-                submission = reddit.submission(id=modAction.target_fullname[3:])
-                if hasattr(submission, 'link_flair_text') and submission.link_flair_text:
-                    submissionFlair = submission.link_flair_text.lower()
-                else:
-                    submissionFlair = ''
-                log.info(f'r/{subreddit} | Checking {i}/25 {submissionFlair} by {modAction._mod}')
+                # submission = reddit.submission(id=modAction.target_fullname[3:])
+                # if hasattr(submission, 'link_flair_text') and submission.link_flair_text:
+                #     submissionFlair = submission.link_flair_text.lower()
+                # else:
+                #     submissionFlair = ''
+                log.info(f'r/{subreddit} | Checking {i}/25 {modAction.target_fullname} by {modAction._mod}')
                 checkModAction(modAction)
             log.info(f'r/{subreddit} | Scanning Modlog')
             for modAction in flairRemoval.logStream():
