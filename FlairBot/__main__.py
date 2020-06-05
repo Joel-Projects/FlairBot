@@ -5,7 +5,7 @@ from discord import embeds
 from SpazUtils import Usernotes
 from psycopg2.extras import NamedTupleCursor
 import pydevd_pycharm
-pydevd_pycharm.settrace('24.225.29.166', port=2999, stdoutToServer=True, stderrToServer=True, suspend=False, patch_multiprocessing=True)
+pydevd_pycharm.settrace('24.225.29.166', port=2999, stdoutToServer=True, stderrToServer=True, patch_multiprocessing=True)
 
 thingTypes = {'t1': 'comment', 't4': 'message', 't2': 'redditor', 't3': 'submission', 't5': 'subreddit', 't6': 'trophy'}
 
