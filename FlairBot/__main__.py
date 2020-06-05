@@ -15,6 +15,8 @@ from discord import embeds
 
 # from psycopg2.extras import NamedTupleCursor
 # pydevd_pycharm.settrace('24.225.29.166', port=2999, stdoutToServer=True, stderrToServer=True, patch_multiprocessing=True)
+from prawcore import NotFound
+
 
 thingTypes = {'t1': 'comment', 't4': 'message', 't2': 'redditor', 't3': 'submission', 't5': 'subreddit', 't6': 'trophy'}
 
@@ -378,18 +380,22 @@ def flairBot(reddit, subreddit, webhook, webhook_type, header, footer):
     flairRemoval = FlairRemoval(reddit, subreddit, webhook, sql, log, webhookEnabled=bool(webhook), slack=slack, header=header, footer=footer)
     checkModAction = flairRemoval.checkModAction
     log.info(f'r/{subreddit} | Starting FlairBot')
+    checkLast = 5
     while True:
         try:
-            log.info(f'r/{subreddit} | Checking last 25 flair edits...')
-            for i, modAction in enumerate(subreddit.mod.log(action='editflair', limit=25), 1):
+            log.info(f'r/{subreddit} | Checking last {checkLast} flair edits...')
+            for i, modAction in enumerate(subreddit.mod.log(action='editflair', limit=checkLast), 1):
                 try:
                     submission = reddit.submission(id=modAction.target_fullname[3:])
                     if hasattr(submission, 'link_flair_text') and submission.link_flair_text:
                         submissionFlair = submission.link_flair_text.lower()
                     else:
                         submissionFlair = ''
-                    log.info(f'r/{subreddit} | Checking {i}/25 {modAction.target_fullname} by {modAction._mod}')
+                    log.info(f'r/{subreddit} | Checking {i}/{checkLast} {submissionFlair} by {modAction._mod}')
                     checkModAction(modAction)
+                except NotFound:
+                    log.info(f'r/{subreddit} | {i}/{checkLast} {modAction.target_fullname} was not found')
+                    continue
                 except Exception as error:
                     log.error(f'r/{subreddit} | {error}')
                     log.exception(error)
@@ -397,7 +403,7 @@ def flairBot(reddit, subreddit, webhook, webhook_type, header, footer):
             for modAction in flairRemoval.logStream():
                 checkModAction(modAction)
         except KeyboardInterrupt:
-            pass
+            SystemExit()
         except Exception as error:
             log.error(f'r/{subreddit} | {error}')
             log.exception(error)
