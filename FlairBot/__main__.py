@@ -43,18 +43,13 @@ class FlairRemoval:
             elif fetchType == 'one':
                 return sql.fetchone()
         try:
-            if not self.sql is None:
-                if self.sql.closed:
-                    del self.sql
-                    services = BotServices('FlairBot')
-                    self.sql = services.postgres()
-            else:
+            if self.sql.closed:
+                self.sql = None
                 services = BotServices('FlairBot')
                 self.sql = services.postgres()
             return doQuery(self.sql, query, args, fetchType)
         except:
-            if not self.sql is None:
-                del self.sql
+            self.sql = None
             services = BotServices('FlairBot')
             self.sql = services.postgres()
             return doQuery(self.sql, query, args, fetchType)
@@ -124,13 +119,14 @@ class FlairRemoval:
                                 pass
                     except psycopg2.IntegrityError as error:
                         self.log.exception(error)
-                        pass
                     except psycopg2.InterfaceError as error:
                         self.log.exception(error)
+                        self.sql = None
                         from BotUtils import BotServices
                         self.sql =  BotServices('FlairBot').postgres()
             except psycopg2.InterfaceError as error:
                 self.log.exception(error)
+                self.sql = None
                 from BotUtils import BotServices
                 self.sql = BotServices('FlairBot').postgres()
             except Exception as error:
