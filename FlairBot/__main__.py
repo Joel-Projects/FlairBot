@@ -443,7 +443,7 @@ def getChanges(results, previousResults):
 
 if __name__ == '__main__':
     import pydevd_pycharm
-    pydevd_pycharm.settrace('24.225.29.166', port=2999, stdoutToServer=True, stderrToServer=True, suspend=False)
+    pydevd_pycharm.settrace('24.225.29.166', port=2999, suspend=False, patch_multiprocessing=True)
     services = BotServices('FlairBot')
     sql = services.postgres()
     log = DaemonLogger(services.logger(), 'FlairBot Daemon', False)
