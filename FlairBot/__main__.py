@@ -99,37 +99,41 @@ class FlairRemoval:
                 else:
                     submissionFlair = ''
                 query = self.__parseModAction(modAction, submissionFlair)
-                self.log.debug('Checking if in flair list')
+                self.log.debug(f'r/{subreddit} | Checking if in flair list')
                 actionParam = self._execute('SELECT * FROM flairbots.removal_reasons WHERE subreddit=%s AND flair_text=%s AND enabled', (self.subreddit.display_name, submissionFlair), 'one')
                 if actionParam:
-                    self.log.info(f'Found flair: {submissionFlair} by {modAction._mod} at {self.__genDateString(modAction.created_utc, dateFormat="%m/%d/%Y %I:%M:%S %p")}')
+                    self.log.info(f'r/{subreddit} | Found flair: {submissionFlair} by {modAction._mod} at {self.__genDateString(modAction.created_utc, dateFormat="%m/%d/%Y %I:%M:%S %p")}')
                     try:
-                        self.log.info(f'Checking if already actioned')
+                        self.log.info(f'r/{subreddit} | Checking if already actioned')
                         result = self._execute(*query, fetchType='one')
                         alreadyRemoved = result.case == 'alreadyRemoved'
                         if alreadyRemoved:
-                            self.log.info(f'Already Removed {submission.shortlink} by {getattr(submission.author, "name", "[deleted]")} with {submissionFlair} flair, Mod: {modAction._mod}')
+                            self.log.info(f'r/{subreddit} | Already Removed {submission.shortlink} by {getattr(submission.author, "name", "[deleted]")} with {submissionFlair} flair, Mod: {modAction._mod}')
                         else:
                             try:
-                                self.log.info(f'Removing')
+                                self.log.info(f'r/{subreddit} | Removing')
                                 self.__action(submission, actionParam, modAction)
-                                self.log.info(f'Successfully removed {submission.shortlink} by {getattr(submission.author, "name", "[deleted]")} with {submissionFlair} flair, Mod: {modAction._mod}')
+                                self.log.info(f'r/{subreddit} | Successfully removed {submission.shortlink} by {getattr(submission.author, "name", "[deleted]")} with {submissionFlair} flair, Mod: {modAction._mod}')
                             except Exception as error:
                                 self.log.exception(error)
                                 pass
                     except psycopg2.IntegrityError as error:
+                        self.log.error(f'r/{subreddit} | {error}')
                         self.log.exception(error)
                     except psycopg2.InterfaceError as error:
+                        self.log.error(f'r/{subreddit} | {error}')
                         self.log.exception(error)
                         self.sql = None
                         from BotUtils import BotServices
                         self.sql =  BotServices('FlairBot').postgres()
             except psycopg2.InterfaceError as error:
+                self.log.error(f'r/{subreddit} | {error}')
                 self.log.exception(error)
                 self.sql = None
                 from BotUtils import BotServices
                 self.sql = BotServices('FlairBot').postgres()
             except Exception as error:
+                self.log.error(f'r/{subreddit} | {error}')
                 self.log.exception(error)
 
     def __action(self, submission: praw.models.reddit.submission.Submission, action, modAction: praw.models.ModAction, testing=False):
@@ -358,24 +362,24 @@ def flairBot(reddit, subreddit, webhook, webhook_type, header, footer):
     services = BotServices('FlairBot')
     reddit = praw.Reddit(**reddit)
     sql = services.postgres()
-    log = DaemonLogger(services.logger(), subreddit)
+    log =services.logger()
     subreddit = reddit.subreddit(subreddit)
     slack = webhook_type == 'slack'
     flairRemoval = FlairRemoval(reddit, subreddit, webhook, sql, log, webhookEnabled=bool(webhook), slack=slack, header=header, footer=footer)
     checkModAction = flairRemoval.checkModAction
-    log.info(f'Starting FlairBot')
+    log.info(f'r/{subreddit} | Starting FlairBot')
     while True:
         try:
-            log.info(f'Checking last 25 flair edits...')
+            log.info(f'r/{subreddit} | Checking last 25 flair edits...')
             for i, modAction in enumerate(subreddit.mod.log(action='editflair', limit=25), 1):
                 submission = reddit.submission(id=modAction.target_fullname[3:])
                 if hasattr(submission, 'link_flair_text') and submission.link_flair_text:
                     submissionFlair = submission.link_flair_text.lower()
                 else:
                     submissionFlair = ''
-                log.info(f'Checking {i}/25 {submissionFlair} by {modAction._mod}')
+                log.info(f'r/{subreddit} | Checking {i}/25 {submissionFlair} by {modAction._mod}')
                 checkModAction(modAction)
-            log.info(f'Scanning Modlog')
+            log.info(f'r/{subreddit} | Scanning Modlog')
             for modAction in flairRemoval.logStream():
                 checkModAction(modAction)
         except KeyboardInterrupt:
