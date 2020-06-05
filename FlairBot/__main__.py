@@ -7,15 +7,22 @@ import time
 import timeago
 from multiprocessing import Process
 
-import pydevd_pycharm
 from BotUtils.CommonUtils import BotServices
+from psycopg2.extras import NamedTupleCursor
 from SpazUtils import Usernotes
+from prawcore import NotFound
 from discord import embeds
 
 
-# from psycopg2.extras import NamedTupleCursor
+import pydevd_pycharm
 # pydevd_pycharm.settrace('24.225.29.166', port=2999, stdoutToServer=True, stderrToServer=True, patch_multiprocessing=True)
-from prawcore import NotFound
+
+handler = logging.StreamHandler()
+handler.setLevel(logging.DEBUG)
+for logger_name in ("praw", "prawcore"):
+    logger = logging.getLogger(logger_name)
+    logger.setLevel(logging.DEBUG)
+    logger.addHandler(handler)
 
 
 thingTypes = {'t1': 'comment', 't4': 'message', 't2': 'redditor', 't3': 'submission', 't5': 'subreddit', 't6': 'trophy'}
