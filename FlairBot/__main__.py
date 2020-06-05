@@ -451,7 +451,7 @@ if __name__ == '__main__':
     previousResults = results = sql.fetchall()
     results = [i for i in results if i.enabled]
     subreddits = {result.subreddit: {'reddit': services.reddit(result.bot_account).config._settings, 'webhook': result.webhook, 'webhook_type': result.webhook_type, 'header': result.header, 'footer': result.footer} for result in results}
-    flairBots = {subreddit: Process(target=flairBot, kwargs={'subreddit': subreddit, **subreddits[subreddit]}) for subreddit in subreddits}
+    flairBots = {subreddit: Process(target=flairBot, daemon=True, kwargs={'subreddit': subreddit, **subreddits[subreddit]}) for subreddit in subreddits}
     for subreddit in subreddits:
         bot = flairBots[subreddit]
         bot.start()
