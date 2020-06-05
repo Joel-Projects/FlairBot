@@ -126,12 +126,10 @@ class FlairRemoval:
                         pass
                     except psycopg2.InterfaceError as error:
                         self.log.exception(error)
-                        del self.sql
                         from BotUtils import BotServices
                         self.sql =  BotServices('FlairBot').postgres()
             except psycopg2.InterfaceError as error:
                 self.log.exception(error)
-                del self.sql
                 from BotUtils import BotServices
                 self.sql = BotServices('FlairBot').postgres()
             except Exception as error:
