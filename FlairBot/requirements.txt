@@ -1,2 +1,2 @@
 SpazUtils
--e ../../BotUtils
+BotUtils

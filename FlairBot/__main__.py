@@ -7,7 +7,7 @@ import time
 import timeago
 from multiprocessing import Process
 
-from BotUtils.CommonUtils import BotServices
+from BotUtils import BotServices
 from psycopg2.extras import NamedTupleCursor
 from SpazUtils import Usernotes
 from prawcore import NotFound
@@ -16,13 +16,6 @@ from discord import embeds
 
 import pydevd_pycharm
 # pydevd_pycharm.settrace('24.225.29.166', port=2999, stdoutToServer=True, stderrToServer=True, patch_multiprocessing=True)
-
-handler = logging.StreamHandler()
-handler.setLevel(logging.DEBUG)
-for logger_name in ("praw", "prawcore"):
-    logger = logging.getLogger(logger_name)
-    logger.setLevel(logging.DEBUG)
-    logger.addHandler(handler)
 
 
 thingTypes = {'t1': 'comment', 't4': 'message', 't2': 'redditor', 't3': 'submission', 't5': 'subreddit', 't6': 'trophy'}
@@ -393,13 +386,14 @@ def flairBot(reddit, subreddit, webhook, webhook_type, header, footer):
             log.info(f'r/{subreddit} | Checking last {checkLast} flair edits...')
             for i, modAction in enumerate(subreddit.mod.log(action='editflair', limit=checkLast), 1):
                 try:
-                    submission = reddit.submission(id=modAction.target_fullname[3:])
-                    if hasattr(submission, 'link_flair_text') and submission.link_flair_text:
-                        submissionFlair = submission.link_flair_text.lower()
-                    else:
-                        submissionFlair = ''
-                    log.info(f'r/{subreddit} | Checking {i}/{checkLast} {submissionFlair} by {modAction._mod}')
-                    checkModAction(modAction)
+                    if modAction.target_fullname is not None and modAction.target_fullname.startswith('t3'):
+                        submission = reddit.submission(id=modAction.target_fullname[3:])
+                        if hasattr(submission, 'link_flair_text') and submission.link_flair_text:
+                            submissionFlair = submission.link_flair_text.lower()
+                        else:
+                            submissionFlair = ''
+                        log.info(f'r/{subreddit} | Checking {i}/{checkLast} {submissionFlair} by {modAction._mod}')
+                        checkModAction(modAction)
                 except NotFound:
                     log.info(f'r/{subreddit} | {i}/{checkLast} {modAction.target_fullname} was not found')
                     continue
