@@ -75,101 +75,101 @@
                 </tbody>
             </table>
             <button class="btn btn-primary" id="addSubreddit" data-toggle="modal" data-target="#newSubredditModal">Add Subreddit</button>
-            <div class="modal fade" id="newSubredditModal" role="dialog" aria-labelledby="newSubredditModalLabel" aria-hidden="true">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="newSubredditModalLabel">Add Subreddit</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                        </div>
-                        <div class="modal-body">
-                            <form id="addSubredditForm">
-                                <div class="form-group">
-                                    <div class="col-lg-8">
-                                        <label class="control-label" for="subreddit">Subreddit</label>
-                                        <div class="subName" id="subName">
-                                            <div class="input-group mb-2">
-                                                <div class="input-group-prepend" id="subredditPrepend">
-                                                    <span class="input-group-text">/r/</span>
-                                                </div>
-                                                <input class="form-control" autofocus id="subreddit" name="subreddit" onkeypress="clearInvalidState(this)" placeholder="Subreddit" required>
-                                                <div class="invalid-feedback" id="subredditFeedback">That subreddit doesn't exist!</div>
-                                            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="newSubredditModal" role="dialog" aria-labelledby="newSubredditModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="newSubredditModalLabel">Add Subreddit</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addSubredditForm">
+                        <div class="form-group">
+                            <div class="col-lg-8">
+                                <label class="control-label" for="subreddit">Subreddit</label>
+                                <div class="subName" id="subName">
+                                    <div class="input-group mb-2">
+                                        <div class="input-group-prepend" id="subredditPrepend">
+                                            <span class="input-group-text">/r/</span>
                                         </div>
-                                        <div class="form-group">
-                                            <label for="bot_account">Bot Account</label>
-                                            <div class="botAccount" id="botAccount">
-                                                <div class="input-group mb-3">
-                                                    <div class="input-group-prepend" id="bot_accountPrepend">
-                                                        <span class="input-group-text">/u/</span>
-                                                    </div>
-                                                    <input class="form-control" id="bot_account" name="botAccount" onkeypress="clearInvalidState(this)" placeholder="Account the bot will run as" required>
-                                                    <div class="invalid-feedback" id="bot_accountFeedback">That redditor doesn't exist!</div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="webhookType">Webhook Type</label>
-                                            <select class="custom-select" id="webhookType" name="webhookType">
-                                                <option selected>None</option>
-                                                <option value="discord">Discord</option>
-                                                <option value="slack">Slack</option>
-                                                <option value="custom">Custom</option>
-                                            </select>
-                                        </div>
-                                        <div class="form-group">
-                                            <label hidden id="customWebhookLabel" for="customWebhookType">Custom Webhook Type</label>
-                                            <input hidden type="text" value="" name="webhookType" class="form-control" id="customWebhookType">
-                                        </div>
-                                        <div class="form-group">
-                                            <label hidden id='webhookurlLabel' for="webhookurl">Webhook URL</label>
-                                            <input hidden type="text" value="" name="group" class="form-control" id="webhookurl">
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <div class="custom-control custom-switch">
-                                            <input type="checkbox" class="custom-control-input" id="headerToggle" name="headerToggle">
-                                            <label class="custom-control-label" tabindex="0" for="headerToggle">Header</label>
-                                            <small id="headerHelp" class="form-text text-muted">Enable header for removal comments</small>
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <div class="custom-control custom-switch">
-                                            <input type="checkbox" class="custom-control-input" id="footerToggle" name="footerToggle">
-                                            <label class="custom-control-label" tabindex="0" for="footerToggle">Footer</label>
-                                            <small id="footerHelp" class="form-text text-muted">Enable footer for removal comments</small>
-                                        </div>
-                                    </div>
-                                    <div hidden data-class="form-group" id="headerEntry" data-name="Header" data-nameLower="header" data-previewName="Header Preview" data-formName="headerText" data-text data-placeholder="Removal reason header..."></div>
-                                    <div hidden data-class="form-group" id="footerEntry" data-name="Footer" data-nameLower="footer" data-previewName="Footer Preview" data-formName="footerText" data-text data-placeholder="Removal reason footer..."></div>
-                                    <div class="modal-footer">
-                                        <div class="custom-control custom-switch">
-                                            <input type="checkbox" class="custom-control-input" id="enableOnAdd" name="headerToggle">
-                                            <label class="custom-control-label" tabindex="0" for="enableOnAdd">Enable</label>
-                                            <small id="enableOnAddHelp" class="form-text text-muted">Enable FlairBot on add</small>
-                                        </div>
-                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                                        <button type="submit" name="submit" class="btn btn-primary" id="subredditAdd">Add</button>
+                                        <input class="form-control" autofocus id="subreddit" name="subreddit" onkeypress="clearInvalidState(this)" placeholder="Subreddit" required>
+                                        <div class="invalid-feedback" id="subredditFeedback">That subreddit doesn't exist!</div>
                                     </div>
                                 </div>
-                            </form>
+                                <div class="form-group">
+                                    <label for="bot_account">Bot Account</label>
+                                    <div class="botAccount" id="botAccount">
+                                        <div class="input-group mb-3">
+                                            <div class="input-group-prepend" id="bot_accountPrepend">
+                                                <span class="input-group-text">/u/</span>
+                                            </div>
+                                            <input class="form-control" id="bot_account" name="botAccount" onkeypress="clearInvalidState(this)" placeholder="Account the bot will run as" required>
+                                            <div class="invalid-feedback" id="bot_accountFeedback">That redditor doesn't exist!</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="webhookType">Webhook Type</label>
+                                    <select class="custom-select" id="webhookType" name="webhookType">
+                                        <option selected>None</option>
+                                        <option value="discord">Discord</option>
+                                        <option value="slack">Slack</option>
+                                        <option value="custom">Custom</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label hidden id="customWebhookLabel" for="customWebhookType">Custom Webhook Type</label>
+                                    <input hidden type="text" value="" name="webhookType" class="form-control" id="customWebhookType">
+                                </div>
+                                <div class="form-group">
+                                    <label hidden id='webhookurlLabel' for="webhookurl">Webhook URL</label>
+                                    <input hidden type="text" value="" name="group" class="form-control" id="webhookurl">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input" id="headerToggle" name="headerToggle">
+                                    <label class="custom-control-label" tabindex="0" for="headerToggle">Header</label>
+                                    <small id="headerHelp" class="form-text text-muted">Enable header for removal comments</small>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input" id="footerToggle" name="footerToggle">
+                                    <label class="custom-control-label" tabindex="0" for="footerToggle">Footer</label>
+                                    <small id="footerHelp" class="form-text text-muted">Enable footer for removal comments</small>
+                                </div>
+                            </div>
+                            <div hidden data-class="form-group" id="headerEntry" data-name="Header" data-nameLower="header" data-previewName="Header Preview" data-formName="headerText" data-text data-placeholder="Removal reason header..."></div>
+                            <div hidden data-class="form-group" id="footerEntry" data-name="Footer" data-nameLower="footer" data-previewName="Footer Preview" data-formName="footerText" data-text data-placeholder="Removal reason footer..."></div>
+                            <div class="modal-footer">
+                                <div class="custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input" id="enableOnAdd" name="headerToggle">
+                                    <label class="custom-control-label" tabindex="0" for="enableOnAdd">Enable</label>
+                                    <small id="enableOnAddHelp" class="form-text text-muted">Enable FlairBot on add</small>
+                                </div>
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                <button type="submit" name="submit" class="btn btn-primary" id="subredditAdd">Add</button>
+                            </div>
                         </div>
-                    </div>
+                    </form>
                 </div>
             </div>
         </div>
-        <div class="modal fade" id="confirmationModal" tabindex="-1" role="dialog" aria-labelledby="confirmationModalLabel" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="confirmationModalLabel">Confirmation</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    </div>
-                    <div id="delete-modal-body" class="modal-body">Are you <strong>sure</strong> you want to delete /r/ and all of its associated removal reasons?</div>
-                    <div id="delete-modal-footer" class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-danger" data-dismiss="modal" id="deleteConfirm">Delete this subreddit</button>
-                    </div>
+    </div>
+    <div class="modal fade" id="confirmationModal" tabindex="-1" role="dialog" aria-labelledby="confirmationModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmationModalLabel">Confirmation</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                </div>
+                <div id="delete-modal-body" class="modal-body">Are you <strong>sure</strong> you want to delete /r/ and all of its associated removal reasons?</div>
+                <div id="delete-modal-footer" class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-danger" data-dismiss="modal" id="deleteConfirm">Delete this subreddit</button>
                 </div>
             </div>
         </div>

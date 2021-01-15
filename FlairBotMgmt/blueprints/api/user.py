@@ -59,7 +59,7 @@ def editUser(user=None):
                 password = generate_password_hash(password, "pbkdf2:sha256:80000", 80000)
             else:
                 password = user.password
-            user.passowrd = password
+            user.password = password
             if user.username in ('admin', 'spaz'):
                 admin = True
             if current_user.admin:
@@ -72,7 +72,7 @@ def editUser(user=None):
             success = f'Updated {user.username} successfully!'
             userData = {'id': user.id, 'username': user.username, 'admin': user.admin, 'created': user.created.strftime('%m/%d/%Y %I:%M:%S %p'), 'updated': user.updated.strftime('%m/%d/%Y %I:%M:%S %p'), 'updatedby': user.updatedby, 'enabled': user.enabled}
         else:
-            error =  "That user doesn't exist!"
+            error = "That user doesn't exist!"
     except Exception as e:
         error = e
     return jsonify({'success': success, 'error': error, 'userExists': userExists, 'user': userData}), 202

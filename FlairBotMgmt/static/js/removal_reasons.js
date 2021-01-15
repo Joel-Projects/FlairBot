@@ -329,4 +329,12 @@ $(function () {
     $("#usernoteToggle").click(function () {
         usernoteGroup.hidden = !usernoteToggle.checked;
     });
+
+    $('#subreddit').change(function (data)  {
+        window.comment_box.state.subreddit = data.target.selectedOptions[0].value
+        window.comment_box.state.header = data.target.selectedOptions[0].dataset.header
+        window.comment_box.state.footer = data.target.selectedOptions[0].dataset.footer
+        window.comment_box.handleChange()
+        console.log(data)
+    });
 });

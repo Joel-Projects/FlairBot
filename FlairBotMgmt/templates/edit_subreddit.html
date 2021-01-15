@@ -235,135 +235,135 @@
                     </div>
                 </div>
             </div>
-            <div class="modal fade" id="confirmationModal" tabindex="-1" role="dialog" aria-labelledby="confirmationModalLabel" aria-hidden="true">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="confirmationModalLabel">Confirmation</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                        </div>
-                        <div id="delete-modal-body" class="modal-body">Are you <strong>sure</strong> you want to delete /r/ and all of its associated removal reasons?</div>
-                        <div id="delete-modal-footer" class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                            <button type="button" class="btn btn-danger" data-dismiss="modal" id="deleteConfirm">Delete this subreddit</button>
-                        </div>
+        </div>
+        <div class="modal fade" id="confirmationModal" tabindex="-1" role="dialog" aria-labelledby="confirmationModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="confirmationModalLabel">Confirmation</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    </div>
+                    <div id="delete-modal-body" class="modal-body">Are you <strong>sure</strong> you want to delete /r/ and all of its associated removal reasons?</div>
+                    <div id="delete-modal-footer" class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-danger" data-dismiss="modal" id="deleteConfirm">Delete this subreddit</button>
                     </div>
                 </div>
             </div>
-            <div class="modal fade" id="newReasonModal" role="dialog" aria-labelledby="newReasonModalLabel" aria-hidden="true">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="newReasonModalLabel">Create Reason</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                        </div>
-                        <div class="modal-body">
-                            <form id="createRemovalReasonForm">
-                                <div class="form-group">
-                                    <div class="col-lg-8">
-                                        <label class="control-label" for="subreddit">Subreddit</label>
-                                        <div class="subName" id="subName">
-                                            <div class="input-group mb-2">
-                                                <div class="input-group-prepend" id="subredditPrepend">
-                                                    <span class="input-group-text">/r/</span>
-                                                </div>
-                                                <select class="custom-select" id="subreddit" disabled>
-                                                    <option selected value="{{ subreddit.subreddit }}">{{ subreddit.subreddit }}</option>
-                                                </select>
+        </div>
+        <div class="modal fade" id="newReasonModal" role="dialog" aria-labelledby="newReasonModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="newReasonModalLabel">Create Reason</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="createRemovalReasonForm">
+                            <div class="form-group">
+                                <div class="col-lg-8">
+                                    <label class="control-label" for="subreddit">Subreddit</label>
+                                    <div class="subName" id="subName">
+                                        <div class="input-group mb-2">
+                                            <div class="input-group-prepend" id="subredditPrepend">
+                                                <span class="input-group-text">/r/</span>
+                                            </div>
+                                            <select class="custom-select" id="subreddit" disabled>
+                                                <option selected value="{{ subreddit.subreddit }}">{{ subreddit.subreddit }}</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="flair_text">Flair Text</label>
+                                        <div class="flairText" id="flairText">
+                                            <div class="input-group mb-3">
+                                                <input class="form-control" autofocus id="flair_text" name="flairText" placeholder="The flair the bot will look for" onkeypress="clearInvalidState(this)" required>
+                                                <div class="invalid-feedback" id="flair_textFeedback">This flair already exists for this subreddit!</div>
                                             </div>
                                         </div>
-                                        <div class="form-group">
-                                            <label for="flair_text">Flair Text</label>
-                                            <div class="flairText" id="flairText">
-                                                <div class="input-group mb-3">
-                                                    <input class="form-control" autofocus id="flair_text" name="flairText" placeholder="The flair the bot will look for" onkeypress="clearInvalidState(this)" required>
-                                                    <div class="invalid-feedback" id="flair_textFeedback">This flair already exists for this subreddit!</div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <label id="flair_description" for="description">Description</label>
-                                        <input type="text" value="" name="flairDescription" class="form-control" id="description" placeholder="Descripton that will be logged in selected destination">
-                                    </div>
-                                    <div class="form-group">
-                                        <div class="custom-control custom-switch">
-                                            <input type="checkbox" class="custom-control-input" id="lockToggle" name="lockToggle">
-                                            <label class="custom-control-label" tabindex="0" for="lockToggle">Lock</label>
-                                            <small id="lockHelp" class="form-text text-muted">Lock removed post's comments</small>
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <div class="custom-control custom-switch">
-                                            <input type="checkbox" class="custom-control-input" id="commentLockToggle" name="commentLockToggle">
-                                            <label class="custom-control-label" tabindex="0" for="commentLockToggle">Lock Removal Comment</label>
-                                            <small id="commentLockHelp" class="form-text text-muted">Disable replies to removal comment</small>
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <div class="custom-control custom-switch">
-                                            <input type="checkbox" class="custom-control-input" id="banToggle" name="banToggle">
-                                            <label class="custom-control-label" tabindex="0" for="banToggle">Ban</label>
-                                            <small id="banHelp" class="form-text text-muted">Ban user of removed post</small>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-8" id="banGroup">
-                                        <div class="form-group">
-                                            <label for="ban_duration">Ban Duration (Days - 0 for permaban)</label>
-                                            <input class="form-control" type="number" name="ban_duration" min="0" pattern="[0-9]*" id="ban_duration" inputmode="tel" value="0">
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="ban_reason">Ban Reason</label>
-                                            <input type="text" value="" name="ban_reason" class="form-control" id="ban_reason" placeholder="Subreddit/site rule broken or other.">
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="ban_message">Ban Message</label>
-                                            <input type="text" value="" name="ban_message" class="form-control" id="ban_message" placeholder="Message sent to the user">
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="ban_note">Ban Note</label>
-                                            <input type="text" value="" name="ban_note" class="form-control" id="ban_note" placeholder="Private mod note">
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <div class="custom-control custom-switch">
-                                            <input type="checkbox" class="custom-control-input" id="usernoteToggle" name="usernoteToggle">
-                                            <label class="custom-control-label" tabindex="0" for="usernoteToggle">User note</label>
-                                            <small id="usernoteHelp" class="form-text text-muted">Create User note on author of removed post</small>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-8" id="usernoteGroup">
-                                        <div class="form-group">
-                                            <label for="usernote_note">Note</label>
-                                            <input type="text" value="" name="usernote_note" class="form-control" id="usernote_note" placeholder="Note to be left for author of removed post">
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="usernote_warning_type">Warning Type</label>
-                                            <small id="usernote_warning_typeHelp" class="form-text text-muted">Type of note. Must exactly match toolbox note types. Leave blank for no type.</small>
-                                            <input type="text" value="" name="usernote_warning_type" class="form-control" id="usernote_warning_type" placeholder="User note Warning type">
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <div class="custom-control custom-switch">
-                                            <input type="checkbox" class="custom-control-input" id="commentToggle" name="commentToggle">
-                                            <label class="custom-control-label" tabindex="0" for="commentToggle">Comment</label>
-                                            <small id="headerHelp" class="form-text text-muted">Have the bot leave a removal comment</small>
-                                        </div>
-                                    </div>
-                                    <div data-class="form-group" id="commentEntry" data-header="{{ subreddit.header }}" data-footer="{{ subreddit.footer }}" data-name="Comment" data-nameLower="comment" data-previewName="Comment Preview" data-formName="commentText" data-text="" data-placeholder="Removal comment..." data-subreddit="{{ subreddit.subreddit }}"></div>
-
-                                    <div class="modal-footer">
-                                        <div class="custom-control custom-switch">
-                                            <input type="checkbox" class="custom-control-input" id="enableOnAdd" name="enableToggle" checked>
-                                            <label class="custom-control-label" tabindex="0" for="enableOnAdd">Enable</label>
-                                        </div>
-                                        <button type="button" class="btn btn-secondary" tabindex="0" data-dismiss="modal">Cancel</button>
-                                        <button type="submit" name="submit" tabindex="0" class="btn btn-primary" id="reasonCreateNew">Create and New</button>
-                                        <button type="submit" name="submit" tabindex="0" class="btn btn-primary" id="reasonCreate">Create</button>
                                     </div>
                                 </div>
-                            </form>
-                        </div>
+                                <div class="form-group">
+                                    <label id="flair_description" for="description">Description</label>
+                                    <input type="text" value="" name="flairDescription" class="form-control" id="description" placeholder="Descripton that will be logged in selected destination">
+                                </div>
+                                <div class="form-group">
+                                    <div class="custom-control custom-switch">
+                                        <input type="checkbox" class="custom-control-input" id="lockToggle" name="lockToggle">
+                                        <label class="custom-control-label" tabindex="0" for="lockToggle">Lock</label>
+                                        <small id="lockHelp" class="form-text text-muted">Lock removed post's comments</small>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="custom-control custom-switch">
+                                        <input type="checkbox" class="custom-control-input" id="commentLockToggle" name="commentLockToggle">
+                                        <label class="custom-control-label" tabindex="0" for="commentLockToggle">Lock Removal Comment</label>
+                                        <small id="commentLockHelp" class="form-text text-muted">Disable replies to removal comment</small>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="custom-control custom-switch">
+                                        <input type="checkbox" class="custom-control-input" id="banToggle" name="banToggle">
+                                        <label class="custom-control-label" tabindex="0" for="banToggle">Ban</label>
+                                        <small id="banHelp" class="form-text text-muted">Ban user of removed post</small>
+                                    </div>
+                                </div>
+                                <div class="col-lg-8" id="banGroup">
+                                    <div class="form-group">
+                                        <label for="ban_duration">Ban Duration (Days - 0 for permaban)</label>
+                                        <input class="form-control" type="number" name="ban_duration" min="0" pattern="[0-9]*" id="ban_duration" inputmode="tel" value="0">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="ban_reason">Ban Reason</label>
+                                        <input type="text" value="" name="ban_reason" class="form-control" id="ban_reason" placeholder="Subreddit/site rule broken or other.">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="ban_message">Ban Message</label>
+                                        <input type="text" value="" name="ban_message" class="form-control" id="ban_message" placeholder="Message sent to the user">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="ban_note">Ban Note</label>
+                                        <input type="text" value="" name="ban_note" class="form-control" id="ban_note" placeholder="Private mod note">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="custom-control custom-switch">
+                                        <input type="checkbox" class="custom-control-input" id="usernoteToggle" name="usernoteToggle">
+                                        <label class="custom-control-label" tabindex="0" for="usernoteToggle">User note</label>
+                                        <small id="usernoteHelp" class="form-text text-muted">Create User note on author of removed post</small>
+                                    </div>
+                                </div>
+                                <div class="col-lg-8" id="usernoteGroup">
+                                    <div class="form-group">
+                                        <label for="usernote_note">Note</label>
+                                        <input type="text" value="" name="usernote_note" class="form-control" id="usernote_note" placeholder="Note to be left for author of removed post">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="usernote_warning_type">Warning Type</label>
+                                        <small id="usernote_warning_typeHelp" class="form-text text-muted">Type of note. Must exactly match toolbox note types. Leave blank for no type.</small>
+                                        <input type="text" value="" name="usernote_warning_type" class="form-control" id="usernote_warning_type" placeholder="User note Warning type">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="custom-control custom-switch">
+                                        <input type="checkbox" class="custom-control-input" id="commentToggle" name="commentToggle">
+                                        <label class="custom-control-label" tabindex="0" for="commentToggle">Comment</label>
+                                        <small id="headerHelp" class="form-text text-muted">Have the bot leave a removal comment</small>
+                                    </div>
+                                </div>
+                                <div data-class="form-group" id="commentEntry" data-header="{{ subreddit.header }}" data-footer="{{ subreddit.footer }}" data-name="Comment" data-nameLower="comment" data-previewName="Comment Preview" data-formName="commentText" data-text="" data-placeholder="Removal comment..." data-subreddit="{{ subreddit.subreddit }}"></div>
+
+                                <div class="modal-footer">
+                                    <div class="custom-control custom-switch">
+                                        <input type="checkbox" class="custom-control-input" id="enableOnAdd" name="enableToggle" checked>
+                                        <label class="custom-control-label" tabindex="0" for="enableOnAdd">Enable</label>
+                                    </div>
+                                    <button type="button" class="btn btn-secondary" tabindex="0" data-dismiss="modal">Cancel</button>
+                                    <button type="submit" name="submit" tabindex="0" class="btn btn-primary" id="reasonCreateNew">Create and New</button>
+                                    <button type="submit" name="submit" tabindex="0" class="btn btn-primary" id="reasonCreate">Create</button>
+                                </div>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
