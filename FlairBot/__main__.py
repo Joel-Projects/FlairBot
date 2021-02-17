@@ -374,7 +374,7 @@ def flairBot(reddit, subreddit, webhook, webhook_type, header, footer):
     services = BotServices('FlairBot')
     reddit = praw.Reddit(**reddit)
     sql = services.postgres()
-    log =services.logger()
+    log = services.logger()
     subreddit = reddit.subreddit(subreddit)
     slack = webhook_type == 'slack'
     flairRemoval = FlairRemoval(reddit, subreddit, webhook, sql, log, webhookEnabled=bool(webhook), slack=slack, header=header, footer=footer)
@@ -504,6 +504,6 @@ if __name__ == '__main__':
                 subreddits[result.subreddit] = {'reddit': services.reddit(result.bot_account).config._settings, 'webhook': result.webhook, 'webhook_type': result.webhook_type, 'header': result.header, 'footer': result.footer}
                 flairBots[result.subreddit] = bot = Process(target=flairBot, kwargs={'subreddit': result.subreddit, **subreddits[result.subreddit]})
                 bot.start()
-        subreddits = {result.subreddit: {'reddit': services.reddit(result.bot_account).config._settings, 'webhook': result.webhook, 'webhook_type': result.webhook_type, 'header': result.header, 'footer': result.footer} for result in results}
+            subreddits = {result.subreddit: {'reddit': services.reddit(result.bot_account).config._settings, 'webhook': result.webhook, 'webhook_type': result.webhook_type, 'header': result.header, 'footer': result.footer} for result in results}
         log.debug('sleeping for 5 seconds')
         time.sleep(5)
